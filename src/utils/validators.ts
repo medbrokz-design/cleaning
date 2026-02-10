@@ -25,7 +25,6 @@ export const isValidPhone = (phone: string): boolean => {
   return numbers.length === 11 && (numbers.startsWith('77') || numbers.startsWith('70'));
 };
 
-export const isValidEmail = (email: string): boolean => {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return re.test(email);
+export const sanitizeText = (text: string): string => {
+  return text.replace(/[<>]/g, '').trim();
 };

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAdminStore } from '../store/adminStore';
+import { useAdminStore, Review } from '../store/adminStore';
 
 interface TestimonialData {
   name: string;
@@ -26,7 +26,7 @@ export function Testimonials({ customTestimonials }: TestimonialsProps) {
   const publishedReviews = reviews.filter(r => r.isPublished);
 
   const displayTestimonials: TestimonialData[] = customTestimonials && customTestimonials.length > 0
-    ? customTestimonials.map(t => ({
+    ? customTestimonials.map((t: any) => ({
         ...t,
         verified: true,
         subscription: false,
@@ -34,7 +34,7 @@ export function Testimonials({ customTestimonials }: TestimonialsProps) {
         type: 'Уборка по адресу'
       }))
     : publishedReviews.length > 0 
-      ? publishedReviews.map(r => ({
+      ? publishedReviews.map((r: Review) => ({
           name: r.clientName,
           avatar: r.clientName.charAt(0),
           district: 'Алматы',

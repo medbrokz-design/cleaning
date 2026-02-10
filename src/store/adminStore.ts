@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../utils/supabase';
 
-// Types (same as before)
 export interface Request {
   id: string;
   name: string;
@@ -12,13 +11,13 @@ export interface Request {
   date: string;
   time: string;
   comment: string;
-  cleaningType: string;
+  cleaning_type: string;
   area: number;
-  priceMin: number;
-  priceMax: number;
+  price_min: number;
+  price_max: number;
   status: 'new' | 'sent' | 'confirmed' | 'completed' | 'cancelled';
   assignedExecutors: string[];
-  createdAt: string;
+  created_at: string;
 }
 
 export interface Executor {
@@ -30,6 +29,15 @@ export interface Executor {
   isActive: boolean;
   isVerified: boolean;
   isPremium: boolean;
+}
+
+export interface Review {
+  id: string;
+  clientName: string;
+  rating: number;
+  text: string;
+  isPublished: boolean;
+  createdAt: string;
 }
 
 export interface PriceSettings {
@@ -44,30 +52,32 @@ export interface PriceSettings {
 
 interface AdminState {
   isAuthenticated: boolean;
+  adminUser: { email: string; role: string } | null; // ВЕРНУЛ
   requests: Request[];
   executors: Executor[];
+  reviews: Review[]; // ВЕРНУЛ
   prices: PriceSettings;
   stats: any;
   
-  // Auth
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
-  
-  // Data Sync
   fetchData: () => Promise<void>;
   fetchPublicData: () => Promise<void>;
-  
-  // Actions
   addRequest: (data: any) => Promise<void>;
   updateRequest: (id: string, data: any) => Promise<void>;
   deleteRequest: (id: string) => Promise<void>;
+  assignExecutor: (requestId: string, executorId: string) => Promise<void>;
   updatePrices: (prices: PriceSettings) => Promise<void>;
+  toggleReviewPublished: (id: string, published: boolean) => Promise<void>;
+  deleteReview: (id: string) => Promise<void>;
 }
 
 export const useAdminStore = create<AdminState>((set, get) => ({
   isAuthenticated: false,
+  adminUser: null,
   requests: [],
   executors: [],
+  reviews: [],
   prices: {
     regular: 230,
     deep: 460,
@@ -77,38 +87,32 @@ export const useAdminStore = create<AdminState>((set, get) => ({
     windows: { min: 2000, max: 5000 },
     heavyDirtModifier: 1.4,
   },
-  stats: { totalRequests: 0, completedRequests: 0 },
+  stats: { totalRequests: 0, completedRequests: 0, activeExecutors: 0, avgRating: 4.9, newRequests: 0 },
 
   login: async (email, password) => {
-    // Для демо оставляем простую проверку, 
-    // но в будущем заменим на supabase.auth.signInWithPassword
     if (email === (import.meta.env.VITE_ADMIN_EMAIL || 'admin@cleanalmaty.kz') && 
         password === (import.meta.env.VITE_ADMIN_PASSWORD || 'admin2026')) {
-      set({ isAuthenticated: true });
+      set({ isAuthenticated: true, adminUser: { email, role: 'admin' } });
       await get().fetchData();
       return true;
     }
     return false;
   },
 
-  logout: () => set({ isAuthenticated: false }),
+  logout: () => set({ isAuthenticated: false, adminUser: null }),
 
   fetchData: async () => {
     try {
       const { data: reqs } = await supabase.from('requests').select('*').order('created_at', { ascending: false });
       const { data: execs } = await supabase.from('executors').select('*');
+      const { data: revs } = await supabase.from('reviews').select('*');
       await get().fetchPublicData();
 
       if (reqs) set({ requests: reqs });
       if (execs) set({ executors: execs });
+      if (revs) set({ reviews: revs });
 
-      // Subscribe to real-time changes
-      supabase
-        .channel('schema-db-changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'requests' }, () => {
-          get().fetchData();
-        })
-        .subscribe();
+      supabase.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'requests' }, () => get().fetchData()).subscribe();
     } catch (e) {
       console.error('Supabase fetch error');
     }
@@ -125,22 +129,41 @@ export const useAdminStore = create<AdminState>((set, get) => ({
 
   addRequest: async (data) => {
     const newRequest = { ...data, status: 'new', created_at: new Date().toISOString() };
-    const { error } = await supabase.from('requests').insert([newRequest]);
-    if (!error) await get().fetchData();
+    await supabase.from('requests').insert([newRequest]);
+    await get().fetchData();
   },
 
   updateRequest: async (id, data) => {
-    const { error } = await supabase.from('requests').update(data).eq('id', id);
-    if (!error) await get().fetchData();
+    await supabase.from('requests').update(data).eq('id', id);
+    await get().fetchData();
   },
 
   deleteRequest: async (id) => {
-    const { error } = await supabase.from('requests').delete().eq('id', id);
-    if (!error) await get().fetchData();
+    await supabase.from('requests').delete().eq('id', id);
+    await get().fetchData();
+  },
+
+  assignExecutor: async (requestId, executorId) => {
+    const request = get().requests.find(r => r.id === requestId);
+    if (request) {
+      const newExecutors = [...new Set([...request.assignedExecutors, executorId])];
+      await supabase.from('requests').update({ assignedExecutors: newExecutors, status: 'sent' }).eq('id', requestId);
+      await get().fetchData();
+    }
   },
 
   updatePrices: async (newPrices) => {
-    const { error } = await supabase.from('settings').upsert({ key: 'prices', value: newPrices });
-    if (!error) set({ prices: newPrices });
+    await supabase.from('settings').upsert({ key: 'prices', value: newPrices });
+    set({ prices: newPrices });
+  },
+
+  toggleReviewPublished: async (id, published) => {
+    await supabase.from('reviews').update({ isPublished: published }).eq('id', id);
+    await get().fetchData();
+  },
+
+  deleteReview: async (id) => {
+    await supabase.from('reviews').delete().eq('id', id);
+    await get().fetchData();
   }
 }));

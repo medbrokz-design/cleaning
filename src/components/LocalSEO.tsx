@@ -85,7 +85,6 @@ export function LocalSEO() {
     }
   ];
 
-  // Updated prices for 2026 (+15% inflation)
   const cleaningPrices = [
     {
       id: 'regular',
@@ -149,176 +148,49 @@ export function LocalSEO() {
   return (
     <section id="local-seo" className="py-16 lg:py-24 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="text-center mb-16">
           <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
             Цены по районам 2026
           </span>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
             Клининг во всех районах Алматы
           </h2>
-          <p className="text-gray-600 max-w-3xl mx-auto text-lg">
-            Актуальные цены 2026 года. Подберём исполнителей рядом с вами — приезд за 1-2 часа
-          </p>
         </div>
 
-        {/* Price Table */}
-        <div className="mb-16">
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 text-center">
-            📊 Актуальные цены на уборку в Алматы (2026)
-          </h3>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {cleaningPrices.map((price, index) => (
-              <Link 
-                to={`/${price.id}`}
-                key={index}
-                className={`bg-white rounded-2xl p-6 border shadow-lg hover:shadow-xl transition-all relative block hover:-translate-y-1 ${
-                  price.isNew ? 'border-green-300 ring-2 ring-green-100' : 'border-gray-100'
-                }`}
-                itemScope
-                itemType="https://schema.org/Offer"
-              >
-                {price.isNew && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                      NEW 2026
-                    </span>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-16">
+          {cleaningPrices.map((price, index) => (
+            <Link 
+              to={`/${price.id}`}
+              key={index}
+              className="bg-white rounded-2xl p-6 border shadow-lg hover:shadow-xl transition-all relative block"
+            >
+              <h4 className="font-semibold text-gray-900 mb-2">{price.type}</h4>
+              <p className="text-emerald-600 font-bold mb-4">{price.pricePerM2}</p>
+              <div className="space-y-1 mb-4">
+                {price.examples.map((ex, i) => (
+                  <div key={i} className="flex justify-between text-xs text-gray-500">
+                    <span>{ex.area}</span>
+                    <span>{ex.price}</span>
                   </div>
-                )}
-                <div className="flex items-center gap-3 mb-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${
-                    index === 0 ? 'bg-emerald-100' : 
-                    index === 1 ? 'bg-blue-100' : 
-                    index === 2 ? 'bg-orange-100' : 
-                    'bg-green-100'
-                  }`}>
-                    {index === 0 ? '✨' : index === 1 ? '🧹' : index === 2 ? '🔨' : '🌿'}
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900" itemProp="name">{price.type}</h4>
-                    <p className="text-sm text-emerald-600 font-medium">{price.pricePerM2}</p>
-                  </div>
-                </div>
-                
-                <p className="text-sm text-gray-600 mb-4" itemProp="description">{price.description}</p>
-                
-                {/* Price examples */}
-                <div className="space-y-2 mb-4">
-                  {price.examples.map((ex, i) => (
-                    <div key={i} className="flex justify-between items-center text-sm">
-                      <span className="text-gray-500">{ex.area}</span>
-                      <span className="font-medium text-gray-900" itemProp="price">{ex.price}</span>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
-                  <span className="text-xs font-semibold text-emerald-600">Подробнее →</span>
-                  <div className="flex items-center gap-2 text-xs text-gray-400">
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {price.time}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                ))}
+              </div>
+              <span className="text-xs text-emerald-600 font-medium">Подробнее →</span>
+            </Link>
+          ))}
         </div>
 
-        {/* Districts Grid */}
-        <div>
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 text-center">
-            📍 Районы обслуживания — 2026
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {districts.map((district, index) => (
-              <Link 
-                to={`/${district.id}`}
-                key={index}
-                className="group bg-white rounded-xl p-5 border border-gray-100 hover:border-emerald-200 hover:shadow-lg transition-all block hover:-translate-y-1"
-                itemScope
-                itemType="https://schema.org/Service"
-              >
-                <meta itemProp="serviceType" content="Cleaning Service" />
-                <div itemProp="areaServed" itemScope itemType="https://schema.org/AdministrativeArea">
-                  <meta itemProp="name" content={district.name} />
-                </div>
-                
-                <div className="flex items-start justify-between mb-3">
-                  <h4 className="font-semibold text-gray-900 text-sm" itemProp="name">
-                    {district.name}
-                  </h4>
-                  <div className="flex items-center gap-1">
-                    <div className="w-12 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full"
-                        style={{ width: `${district.popularity}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {district.areas.slice(0, 3).map((area, i) => (
-                    <span key={i} className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{area}</span>
-                  ))}
-                </div>
-                
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-medium text-emerald-600">{district.priceRange}</span>
-                  <span className="text-gray-400 group-hover:text-emerald-500 transition-colors">Смотреть →</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-          </div>
-        </div>
-
-        {/* SEO Text Block - Updated for 2026 */}
-        <div className="mt-16 bg-white rounded-2xl p-6 lg:p-8 border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Клининговые услуги в Алматы 2026 — тренды и цены
-          </h3>
-          <div className="prose prose-sm prose-gray max-w-none">
-            <p className="text-gray-600 leading-relaxed mb-4">
-              <strong>Рынок клининга в Алматы 2026</strong> продолжает активно развиваться. Средние цены выросли на 15% по сравнению с 2024 годом из-за инфляции и повышения качества сервиса. 
-              Поддерживающая уборка теперь стоит от 230 тенге за м², генеральная — от 460 тенге за м². 
-              Популярность набирает эко-уборка с био-средствами (от 300 тенге за м²) — особенно среди семей с детьми и аллергиков.
-            </p>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              <strong>Новинки 2026:</strong> подписка на регулярную уборку со скидкой до 20%, экспресс-приезд за 30 минут в центральных районах, 
-              ИИ-подбор исполнителей по рейтингу и отзывам, онлайн-отслеживание уборки, фото-отчёты до/после. 
-              Большинство исполнителей принимают Kaspi QR — оплата только после приёмки работы.
-            </p>
-            <p className="text-gray-600 leading-relaxed">
-              <strong>Самые популярные районы:</strong> Бостандыкский (98% спроса), Алмалинский (92%), Ауэзовский (85%). 
-              Среднее время прибытия клинера — 1-2 часа. В Наурызбайском и Алатауском районах возможна доплата за выезд 1500-2000 тенге.
-            </p>
-          </div>
-        </div>
-
-        {/* CTA */}
-        <div className="mt-8 text-center">
-          <a 
-            href="#calculator"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-4 rounded-xl font-semibold transition-all shadow-lg shadow-emerald-200/50 hover:shadow-xl"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            Рассчитать стоимость для вашего района
-          </a>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {districts.map((district, index) => (
+            <Link 
+              to={`/${district.id}`}
+              key={index}
+              className="group bg-white rounded-xl p-5 border border-gray-100 hover:border-emerald-200 hover:shadow-lg transition-all block"
+            >
+              <h4 className="font-semibold text-gray-900 text-sm mb-2">{district.name}</h4>
+              <p className="text-xs text-emerald-600 font-medium">{district.priceRange}</p>
+              <p className="text-[10px] text-gray-400 mt-2">Смотреть цены в районе →</p>
+            </Link>
+          ))}
         </div>
       </div>
     </section>

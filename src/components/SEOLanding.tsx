@@ -4,6 +4,7 @@ import { seoData } from '../utils/seoData';
 import { Hero } from './Hero';
 import { Calculator } from './Calculator';
 import { ServiceInfo } from './ServiceInfo';
+import { Checklist } from './Checklist'; // ADDED
 import { LocalContent } from './LocalContent'; // NEW
 import { PriceFactors } from './PriceFactors';
 import { LocalSEO } from './LocalSEO';

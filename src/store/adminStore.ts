@@ -42,6 +42,7 @@ export interface Executor {
   priceModifier: number; // 1.0 = standard, 1.2 = +20%
   isActive: boolean;
   isVerified: boolean;
+  isPremium: boolean; // NEW: Приоритет в выдаче
   hasEcoCleanig: boolean;
   hasSubscription: boolean;
   createdAt: string;
@@ -222,6 +223,7 @@ const initialExecutors: Executor[] = [
     priceModifier: 1.0,
     isActive: true,
     isVerified: true,
+    isPremium: true,
     hasEcoCleanig: true,
     hasSubscription: true,
     createdAt: '2023-06-15',

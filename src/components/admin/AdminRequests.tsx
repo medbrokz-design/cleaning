@@ -12,135 +12,113 @@ export function AdminRequests() {
 
   const filteredRequests = requests.filter(r => {
     const matchesFilter = filter === 'all' || r.status === filter;
-    const matchesSearch = 
-      r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.phone.includes(searchTerm) ||
-      r.address.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesFilter && matchesSearch;
+    const nameMatch = (r.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const phoneMatch = (r.phone || '').includes(searchTerm);
+    const addressMatch = (r.address || '').toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesFilter && (nameMatch || phoneMatch || addressMatch);
   });
 
   const exportToCSV = () => {
-    const headers = ['ID', 'Клиент', 'Телефон', 'Услуга', 'Адрес', 'Район', 'Дата', 'Цена', 'Статус'];
+    const headers = ['ID', 'Клиент', 'Телефон', 'Услуга', 'Адрес', 'Дата', 'Статус'];
     const rows = filteredRequests.map(r => [
-      r.id, r.name, r.phone, r.cleaningType, r.address, r.district, r.date, `${r.priceMin}-${r.priceMax}`, r.status
+      r.id, r.name, r.phone, r.cleaning_type, r.address, r.date, r.status
     ]);
-    
     const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `requests_export_${new Date().toLocaleDateString()}.csv`;
+    link.download = `requests_${new Date().getTime()}.csv`;
     link.click();
-    addNotification('Экспорт в CSV успешно выполнен', 'success');
+    addNotification('Данные экспортированы', 'success');
   };
 
-  const sendWhatsApp = (request: Request) => {
-    const text = `Здравствуйте, ${request.name}! Вы оставляли заявку на клининг (${request.cleaningType}) по адресу: ${request.address}. Мы подобрали для вас исполнителей.`;
-    window.open(`https://wa.me/${request.phone.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+  const handleStatusChange = async (requestId: string, newStatus: Request['status']) => {
+    await updateRequest(requestId, { status: newStatus });
+    addNotification('Статус обновлен', 'info');
   };
 
-  const handleStatusChange = (requestId: string, newStatus: Request['status']) => {
-    updateRequest(requestId, { status: newStatus });
-    addNotification(`Статус заявки #${requestId} изменен на ${newStatus}`, 'info');
-  };
-
-  const handleDelete = (id: string) => {
-    if (confirm('Удалить заявку?')) {
-      deleteRequest(id);
-      addNotification('Заявка удалена', 'error');
+  const handleAssign = async (executorId: string) => {
+    if (selectedRequest) {
+      await assignExecutor(selectedRequest.id, executorId);
+      addNotification('Исполнитель назначен', 'success');
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Filters & Search */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4 justify-between items-center">
+      <div className="flex flex-col lg:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
         <div className="flex flex-wrap gap-2">
-          {/* ... существующие фильтры ... */}
-          <button
-            onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filter === 'all' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600'}`}
-          >
-            Все ({requests.length})
-          </button>
-          <button
-            onClick={() => setFilter('new')}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filter === 'new' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'}`}
-          >
-            Новые ({requests.filter(r => r.status === 'new').length})
-          </button>
+          {['all', 'new', 'sent', 'confirmed', 'completed'].map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f as any)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filter === f ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600'}`}
+            >
+              {f === 'all' ? 'Все' : f}
+            </button>
+          ))}
         </div>
-
-        <div className="flex gap-3 w-full lg:w-auto">
-          <div className="relative flex-1 lg:w-64">
-            <input
-              type="text"
-              placeholder="Поиск по имени..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-4 pr-4 py-2 bg-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none"
-            />
-          </div>
-          <button 
-            onClick={exportToCSV}
-            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
-          >
-            📊 Экспорт
-          </button>
+        <div className="flex gap-2 w-full lg:w-auto">
+          <input
+            type="text"
+            placeholder="Поиск..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 lg:w-64 px-4 py-2 bg-gray-50 border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500/20"
+          />
+          <button onClick={exportToCSV} className="px-4 py-2 bg-gray-100 rounded-xl text-sm font-bold">📊 Экспорт</button>
         </div>
       </div>
 
-      {/* Requests Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
+            <thead className="bg-gray-50 text-left border-b border-gray-100">
               <tr>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Клиент</th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Услуга</th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Статус</th>
-                <th className="text-right py-4 px-6 text-sm font-semibold text-gray-600">Действия</th>
+                <th className="p-4 text-sm font-semibold text-gray-600">Клиент</th>
+                <th className="p-4 text-sm font-semibold text-gray-600">Услуга</th>
+                <th className="p-4 text-sm font-semibold text-gray-600">Адрес</th>
+                <th className="p-4 text-sm font-semibold text-gray-600">Статус</th>
+                <th className="p-4 text-right">Действия</th>
               </tr>
             </thead>
-            <tbody>
-              {filteredRequests.map((request) => (
-                <tr key={request.id} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="py-4 px-6">
-                    <p className="font-medium text-gray-900">{request.name}</p>
-                    <p className="text-xs text-gray-500">{request.phone}</p>
+            <tbody className="divide-y divide-gray-50">
+              {filteredRequests.map((req) => (
+                <tr key={req.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="p-4">
+                    <p className="font-bold text-gray-900">{req.name}</p>
+                    <p className="text-xs text-gray-500">{req.phone}</p>
                   </td>
-                  <td className="py-4 px-6">
-                    <p className="text-sm">{request.cleaningType}</p>
-                    <p className="text-xs text-emerald-600 font-bold">{request.priceMin} ₸</p>
+                  <td className="p-4">
+                    <p className="text-sm">{req.cleaning_type}</p>
+                    <p className="text-xs text-emerald-600 font-bold">{req.price_min} ₸</p>
                   </td>
-                  <td className="py-4 px-6">
+                  <td className="p-4 text-sm text-gray-600">{req.address}</td>
+                  <td className="p-4">
                     <select
-                      value={request.status}
-                      onChange={(e) => handleStatusChange(request.id, e.target.value as Request['status'])}
+                      value={req.status}
+                      onChange={(e) => handleStatusChange(req.id, e.target.value as any)}
                       className="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white"
                     >
                       <option value="new">Новая</option>
                       <option value="sent">Отправлена</option>
-                      <option value="confirmed">Подтверждена</option>
+                      <option value="confirmed">Принята</option>
                       <option value="completed">Выполнена</option>
                     </select>
                   </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => sendWhatsApp(request)}
-                        className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
-                        title="Написать в WhatsApp"
-                      >
-                        📱
-                      </button>
-                      <button
-                        onClick={() => handleDelete(request.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-                      >
-                        🗑️
-                      </button>
-                    </div>
+                  <td className="p-4 text-right">
+                    <button
+                      onClick={() => { setSelectedRequest(req); setShowAssignModal(true); }}
+                      className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg"
+                    >
+                      👤+
+                    </button>
+                    <button
+                      onClick={() => { if(confirm('Удалить?')) deleteRequest(req.id); }}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg ml-2"
+                    >
+                      🗑️
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -148,98 +126,24 @@ export function AdminRequests() {
           </table>
         </div>
       </div>
-    </div>
-  );
-}
 
-
-      {/* Assign Modal */}
       {showAssignModal && selectedRequest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-2xl w-full max-w-lg max-h-[80vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Назначить исполнителей
-                </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl">
+            <h3 className="text-xl font-bold mb-4">Назначить исполнителя</h3>
+            <div className="space-y-2 max-h-60 overflow-y-auto mb-6">
+              {executors.map(ex => (
                 <button
-                  onClick={() => setShowAssignModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg"
+                  key={ex.id}
+                  onClick={() => handleAssign(ex.id)}
+                  className={`w-full p-4 rounded-2xl border-2 text-left transition-all ${selectedRequest.assignedExecutors.includes(ex.id) ? 'border-emerald-500 bg-emerald-50' : 'border-gray-100 hover:border-emerald-200'}`}
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <div className="font-bold">{ex.name}</div>
+                  <div className="text-xs text-gray-500">⭐ {ex.rating} • {ex.completedOrders} заказов</div>
                 </button>
-              </div>
-              <p className="text-sm text-gray-500 mt-1">
-                Заявка: {selectedRequest.name} — {selectedRequest.address}
-              </p>
+              ))}
             </div>
-
-            <div className="p-6 overflow-y-auto max-h-96 space-y-3">
-              {executors.filter(e => e.isActive).map((executor) => {
-                const isAssigned = selectedRequest.assignedExecutors.includes(executor.id);
-                return (
-                  <div
-                    key={executor.id}
-                    className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
-                      isAssigned
-                        ? 'border-emerald-500 bg-emerald-50'
-                        : 'border-gray-200 hover:border-emerald-300'
-                    }`}
-                    onClick={() => handleAssign(executor.id)}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold ${
-                        isAssigned ? 'bg-emerald-500' : executor.isPremium ? 'bg-amber-500' : 'bg-gray-400'
-                      }`}>
-                        {isAssigned ? '✓' : executor.name.charAt(0)}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900 flex items-center gap-2">
-                          {executor.name}
-                          {executor.isPremium && (
-                            <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border border-amber-200">Premium</span>
-                          )}
-                          {executor.isVerified && (
-                            <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          ⭐ {executor.rating} • {executor.completedOrders} заказов
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {executor.hasEcoCleanig && (
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">🌿 Эко</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="p-6 border-t border-gray-100 flex gap-3">
-              <button
-                onClick={() => setShowAssignModal(false)}
-                className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-colors"
-              >
-                Закрыть
-              </button>
-              <button
-                onClick={() => {
-                  // Send notifications to assigned executors
-                  alert(`Уведомления отправлены ${selectedRequest.assignedExecutors.length} исполнителям`);
-                  setShowAssignModal(false);
-                }}
-                className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-medium transition-colors"
-              >
-                Отправить заявку ({selectedRequest.assignedExecutors.length})
-              </button>
-            </div>
+            <button onClick={() => setShowAssignModal(false)} className="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold">Закрыть</button>
           </div>
         </div>
       )}

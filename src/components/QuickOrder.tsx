@@ -8,6 +8,8 @@ export function QuickOrder() {
   const [isLoading, setIsLoading] = useState(false);
   const { addNotification } = useNotificationStore();
 
+  const [isSuccess, setIsSuccess] = useState(false); // NEW
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValidPhone(phone)) {
@@ -28,7 +30,8 @@ export function QuickOrder() {
         price_max: 0,
         comment: '⚡ Заявка в 1 клик. Клиент ждет звонка.'
       });
-      addNotification('Заявка принята! Перезвоним через 5 минут.', 'success');
+      setIsSuccess(true); // NEW
+      addNotification('Заявка принята!', 'success');
       setPhone('');
     } catch (error) {
       addNotification('Ошибка отправки. Попробуйте еще раз.', 'error');
@@ -36,6 +39,16 @@ export function QuickOrder() {
       setIsLoading(false);
     }
   };
+
+  if (isSuccess) {
+    return (
+      <div className="w-full max-w-md mx-auto mt-8 p-6 bg-emerald-500 rounded-2xl text-white text-center animate-fade-in">
+        <p className="font-black uppercase tracking-tighter text-xl mb-1">Заявка принята! ✅</p>
+        <p className="text-sm opacity-80">Перезвоним через 5 минут</p>
+        <button onClick={() => setIsSuccess(false)} className="mt-4 text-[10px] uppercase font-bold border-b border-white/30">Отправить еще одну</button>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-md mx-auto mt-8 p-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl animate-fade-in-up">

@@ -62,32 +62,27 @@ export const AnalyticsService = {
 
 // Export API functions using Supabase
 export const api = {
-  // Requests
   async getRequests() {
-    const { data, error } = await supabase
-      .from('requests')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
+    const { data, error } = await supabase.from('requests').select('*').order('created_at', { ascending: false });
     if (error) throw error;
     return data;
   },
   
   async createRequest(data: any) {
-    // Map frontend data to database schema
+    // ВАЖНО: Мапим данные из калькулятора в поля базы данных
     const requestData = {
       name: data.name,
       phone: data.phone,
       messenger: data.messenger,
       address: data.address,
       district: data.district || 'Алматы',
-      date: data.date,
-      time: data.time,
-      comment: data.comment,
-      cleaning_type: data.serviceType,
-      area: data.area,
-      price_min: parseInt(data.estimatedPrice?.split(' - ')[0]) || 0,
-      price_max: parseInt(data.estimatedPrice?.split(' - ')[1]) || 0,
+      date: data.date || '',
+      time: data.time || '',
+      comment: data.comment || '',
+      cleaning_type: data.serviceType || 'Обычная',
+      area: data.area || 0,
+      price_min: data.price_min || 0,
+      price_max: data.price_max || 0,
       status: 'new'
     };
 
@@ -97,9 +92,11 @@ export const api = {
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase insert error:', error);
+      throw error;
+    }
     
-    // Notify via Telegram
     await TelegramService.notifyNewRequest(result);
     AnalyticsService.trackEvent('conversion', 'request_submit', result.cleaning_type, result.price_min);
     
@@ -107,23 +104,13 @@ export const api = {
   },
   
   async updateRequest(id: string, updateData: any) {
-    const { data, error } = await supabase
-      .from('requests')
-      .update(updateData)
-      .eq('id', id)
-      .select()
-      .single();
-    
+    const { data, error } = await supabase.from('requests').update(updateData).eq('id', id).select().single();
     if (error) throw error;
     return data;
   },
   
-  // Executors
   async getExecutors() {
-    const { data, error } = await supabase
-      .from('executors')
-      .select('*');
-    
+    const { data, error } = await supabase.from('executors').select('*');
     if (error) throw error;
     return data;
   }

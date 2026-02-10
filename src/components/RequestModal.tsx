@@ -94,13 +94,11 @@ export function RequestModal({ isOpen, onClose, calculatorData }: RequestModalPr
         address: sanitizeText(formData.address),
         comment: sanitizeText(formData.comment),
         serviceType: getCleaningLabel(),
-        propertyType: getPropertyLabel(),
         area: calculatorData?.area || 0,
-        bathrooms: calculatorData?.bathrooms || 0,
-        windows: calculatorData?.windows || false,
-        estimatedPrice: calculatorData ? `${calculatorData.priceMin} - ${calculatorData.priceMax} ₸` : 'По запросу',
-        preferredDate: formData.date,
-        preferredTime: formData.time,
+        price_min: calculatorData?.min || 0,
+        price_max: calculatorData?.max || 0,
+        date: formData.date,
+        time: formData.time,
       };
 
       await api.createRequest(requestData);

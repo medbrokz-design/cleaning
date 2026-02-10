@@ -68,7 +68,10 @@ export function Footer() {
         </div>
 
         <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs">© {currentYear} CleanAlmaty.kz. Все права защищены. Информационный сервис.</p>
+          <div className="text-left">
+            <p className="text-xs">© {currentYear} CleanAlmaty.kz. Все права защищены. Информационный сервис.</p>
+            <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest">Сервис бесплатен для клиентов. Мы берем комиссию только с исполнителей.</p>
+          </div>
           <div className="flex gap-6 text-xs font-medium">
             <a href="#" className="hover:text-white transition-colors">Политика конфиденциальности</a>
             <a href="#" className="hover:text-white transition-colors">Условия оферты</a>

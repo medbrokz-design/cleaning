@@ -1,0 +1,17 @@
+{
+  "name": "CleanAlmaty — Подбор клининга",
+  "short_name": "CleanAlmaty",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#059669",
+  "description": "Бесплатный подбор клининговых услуг в Алматы. Калькулятор цен 2026.",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/995/995053.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

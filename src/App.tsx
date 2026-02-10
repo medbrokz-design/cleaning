@@ -6,6 +6,7 @@ import { Hero } from './components/Hero';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { SEOLanding } from './components/SEOLanding';
+import { ExecutorPortal } from './components/ExecutorPortal'; // NEW
 
 // Lazy load для админ-панели
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
@@ -118,6 +119,7 @@ export function AppContent() {
         } />
 
         {/* SEO & GEO Landing Pages */}
+        <Route path="/executor" element={<ExecutorPortal />} />
         <Route path="/:slug" element={<SEOLanding />} />
       </Routes>
       

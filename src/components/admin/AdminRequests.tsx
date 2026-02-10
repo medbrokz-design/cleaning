@@ -66,10 +66,15 @@ export function AdminRequests() {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {filteredRequests.map((req) => (
-                <tr key={req.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={req.id} className={`hover:bg-gray-50 transition-colors ${req.cleaning_type === 'Быстрый заказ' ? 'bg-red-50/50' : ''}`}>
                   <td className="p-4">
-                    <p className="font-bold text-gray-900">{req.name}</p>
-                    <p className="text-xs text-gray-500">{req.phone}</p>
+                    <div className="flex items-center gap-2">
+                      {req.cleaning_type === 'Быстрый заказ' && <span className="text-lg animate-bounce">🔥</span>}
+                      <div>
+                        <p className="font-bold text-gray-900">{req.name}</p>
+                        <p className="text-xs text-gray-500">{req.phone}</p>
+                      </div>
+                    </div>
                   </td>
                   <td className="p-4 text-sm">{req.cleaning_type}</td>
                   <td className="p-4">

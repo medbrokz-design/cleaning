@@ -1,18 +1,20 @@
+import { QuickOrder } from './QuickOrder'; // NEW
+
 interface HeroProps {
   onCTAClick: () => void;
 }
 
 export function Hero({ onCTAClick }: HeroProps) {
   return (
-    <section className="relative pt-32 pb-16 lg:pt-48 lg:pb-32 overflow-hidden bg-white">
+    <section className="relative pt-32 pb-16 lg:pt-48 lg:pb-32 overflow-hidden bg-slate-900 text-white">
       {/* Background Decor */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-emerald-50 rounded-full blur-3xl opacity-50"></div>
-        <div className="absolute bottom-0 right-0 w-[30%] h-[30%] bg-blue-50 rounded-full blur-3xl opacity-50"></div>
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-emerald-500/10 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px]"></div>
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-bold mb-8 animate-fade-in">
+        <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-emerald-400 px-4 py-2 rounded-full text-sm font-bold mb-8 animate-fade-in backdrop-blur-sm">
           <span className="relative flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
@@ -20,36 +22,36 @@ export function Hero({ onCTAClick }: HeroProps) {
           124 клинера сейчас онлайн в Алматы
         </div>
 
-        <h1 className="text-5xl lg:text-7xl font-black text-gray-900 tracking-tight mb-6 leading-[1.1]">
-          Идеальная чистота <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">
-            в один клик
+        <h1 className="text-5xl lg:text-8xl font-black text-white tracking-tighter mb-6 leading-[0.9]">
+          Чистота <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
+            без усилий
           </span>
         </h1>
 
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Бесплатный сервис подбора проверенных клинеров. Рассчитайте стоимость за 1 минуту и получите предложения с гарантией лучшей цены.
+        <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-4 leading-relaxed">
+          Профессиональный клининг в Алматы. Просто введите номер, и мы подберем лучшего исполнителя за 5 минут.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        {/* Форма быстрого заказа */}
+        <QuickOrder />
+
+        <div className="mt-12 flex flex-col items-center gap-4">
           <button 
             onClick={onCTAClick}
-            className="w-full sm:w-auto px-10 py-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-lg shadow-2xl shadow-emerald-200 transition-all hover:-translate-y-1 active:scale-95"
+            className="text-emerald-400 font-bold hover:text-emerald-300 transition-colors flex items-center gap-2"
           >
-            Рассчитать стоимость
+            Или рассчитать точную стоимость в калькуляторе 
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+            </svg>
           </button>
-          <a 
-            href="#local-seo"
-            className="w-full sm:w-auto px-10 py-5 bg-white text-gray-900 border-2 border-gray-100 hover:border-emerald-200 rounded-2xl font-bold text-lg transition-all"
-          >
-            Цены по районам
-          </a>
         </div>
 
-        <div className="mt-16 flex flex-wrap justify-center gap-8 lg:gap-16 opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-500">
+        <div className="mt-20 flex flex-wrap justify-center gap-8 lg:gap-16 opacity-30">
           {['Kaspi Pay', 'Эко-средства', 'Гарантия 24ч', 'PRO-оборудование'].map((item) => (
-            <div key={item} className="flex items-center gap-2 font-bold text-gray-900">
-              <span className="text-emerald-600">✓</span> {item}
+            <div key={item} className="flex items-center gap-2 font-bold text-white text-sm uppercase tracking-widest">
+              <span className="text-emerald-500">✓</span> {item}
             </div>
           ))}
         </div>

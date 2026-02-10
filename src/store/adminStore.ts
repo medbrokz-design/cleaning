@@ -55,6 +55,7 @@ interface AdminState {
   
   // Data Sync
   fetchData: () => Promise<void>;
+  fetchPublicData: () => Promise<void>;
   
   // Actions
   addRequest: (data: any) => Promise<void>;
@@ -96,13 +97,29 @@ export const useAdminStore = create<AdminState>((set, get) => ({
     try {
       const { data: reqs } = await supabase.from('requests').select('*').order('created_at', { ascending: false });
       const { data: execs } = await supabase.from('executors').select('*');
-      const { data: prc } = await supabase.from('settings').select('value').eq('key', 'prices').single();
+      await get().fetchPublicData();
 
       if (reqs) set({ requests: reqs });
       if (execs) set({ executors: execs });
+
+      // Subscribe to real-time changes
+      supabase
+        .channel('schema-db-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'requests' }, () => {
+          get().fetchData();
+        })
+        .subscribe();
+    } catch (e) {
+      console.error('Supabase fetch error');
+    }
+  },
+
+  fetchPublicData: async () => {
+    try {
+      const { data: prc } = await supabase.from('settings').select('value').eq('key', 'prices').single();
       if (prc) set({ prices: prc.value });
     } catch (e) {
-      console.error('Supabase fetch error, using cache');
+      console.warn('Using local prices fallback');
     }
   },
 

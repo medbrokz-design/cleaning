@@ -259,8 +259,13 @@ export function LocalSEO() {
                 key={index}
                 className="group bg-white rounded-xl p-5 border border-gray-100 hover:border-emerald-200 hover:shadow-lg transition-all cursor-default"
                 itemScope
-                itemType="https://schema.org/Place"
+                itemType="https://schema.org/Service"
               >
+                <meta itemProp="serviceType" content="Cleaning Service" />
+                <div itemProp="areaServed" itemScope itemType="https://schema.org/AdministrativeArea">
+                  <meta itemProp="name" content={district.name} />
+                </div>
+                
                 <div className="flex items-start justify-between mb-3">
                   <h4 className="font-semibold text-gray-900 text-sm" itemProp="name">
                     {district.name}
@@ -296,7 +301,12 @@ export function LocalSEO() {
                 {/* Price range */}
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-gray-500">Цены:</span>
-                  <span className="font-medium text-emerald-600">{district.priceRange}</span>
+                  <span className="font-medium text-emerald-600" itemProp="offers" itemScope itemType="https://schema.org/AggregateOffer">
+                    <meta itemProp="priceCurrency" content="KZT" />
+                    <meta itemProp="lowPrice" content={district.priceRange.split(' - ')[0].replace(/\D/g, '')} />
+                    <meta itemProp="highPrice" content={district.priceRange.split(' - ')[1].replace(/\D/g, '')} />
+                    {district.priceRange}
+                  </span>
                 </div>
                 
                 {/* Expanded info on hover */}

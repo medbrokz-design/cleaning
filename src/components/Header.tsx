@@ -1,147 +1,68 @@
 import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 export function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState('');
-
-  // Close mobile menu on Escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isMenuOpen) {
-        setIsMenuOpen(false);
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isMenuOpen]);
+  const location = useLocation();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-      
-      // Track active section
-      const sections = ['calculator', 'how-it-works', 'faq'];
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 100 && rect.bottom >= 100) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-    setIsMenuOpen(false);
-  };
-
-  const navItems = [
-    { id: 'calculator', label: 'Калькулятор', icon: '🧮' },
-    { id: 'how-it-works', label: 'Как работает', icon: '⚙️' },
-    { id: 'faq', label: 'FAQ', icon: '❓' },
+  const navLinks = [
+    { name: 'Калькулятор', href: '/#calculator' },
+    { name: 'Цены', href: '/#local-seo' },
+    { name: 'Отзывы', href: '/#faq' },
   ];
 
   return (
-    <header 
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white/95 backdrop-blur-lg shadow-lg shadow-black/5' 
-          : 'bg-white/80 backdrop-blur-sm'
-      }`}
-    >
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      isScrolled ? 'bg-white/80 backdrop-blur-md shadow-lg py-3' : 'bg-transparent py-5'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo */}
-          <a href="#" className="flex items-center gap-3 group">
-            <div className="relative">
-              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center transform group-hover:scale-105 transition-transform shadow-lg shadow-emerald-200">
-                <svg className="w-6 h-6 lg:w-7 lg:h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-              </div>
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+        <div className="flex justify-between items-center">
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-xl shadow-emerald-200 shadow-lg group-hover:rotate-12 transition-transform">
+              🧹
             </div>
-            <div className="hidden sm:block">
-              <span className="font-bold text-lg lg:text-xl text-gray-900">CleanAlmaty</span>
-              <span className="block text-xs text-gray-500">Подбор клининга</span>
-            </div>
-          </a>
+            <span className={`font-black text-xl tracking-tighter ${isScrolled ? 'text-gray-900' : 'text-gray-900'}`}>
+              CleanAlmaty<span className="text-emerald-600">.kz</span>
+            </span>
+          </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-2">
-            {navItems.map((item) => (
-              <button 
-                key={item.id}
-                onClick={() => scrollToSection(item.id)} 
-                className={`px-4 py-2 rounded-xl font-medium transition-all relative ${
-                  activeSection === item.id
-                    ? 'text-emerald-600 bg-emerald-50'
-                    : 'text-gray-600 hover:text-emerald-600 hover:bg-gray-50'
-                }`}
+          <nav className="hidden md:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <a 
+                key={link.name} 
+                href={link.href} 
+                className="text-sm font-bold text-gray-600 hover:text-emerald-600 transition-colors"
               >
-                <span className="hidden lg:inline mr-1">{item.icon}</span>
-                {item.label}
-                {activeSection === item.id && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-emerald-500 rounded-full"></span>
-                )}
-              </button>
+                {link.name}
+              </a>
             ))}
-            <button 
-              onClick={() => scrollToSection('calculator')} 
-              className="ml-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-300 hover:-translate-y-0.5"
+            <Link 
+              to="/executor" 
+              className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100 hover:bg-emerald-100 transition-all"
             >
-              Рассчитать бесплатно
-            </button>
+              Исполнителям
+            </Link>
           </nav>
 
-          {/* Mobile menu button */}
-          <button 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-gray-600 hover:text-emerald-600 transition-colors"
-            aria-label={isMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
-          >
-            <div className="w-6 h-6 relative">
-              <span className={`absolute left-0 w-6 h-0.5 bg-current transform transition-all ${isMenuOpen ? 'top-3 rotate-45' : 'top-1'}`}></span>
-              <span className={`absolute left-0 top-3 w-6 h-0.5 bg-current transition-opacity ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
-              <span className={`absolute left-0 w-6 h-0.5 bg-current transform transition-all ${isMenuOpen ? 'top-3 -rotate-45' : 'top-5'}`}></span>
-            </div>
-          </button>
-        </div>
-
-        {/* Mobile Navigation */}
-        <div className={`md:hidden overflow-hidden transition-all duration-300 ${isMenuOpen ? 'max-h-80 pb-4' : 'max-h-0'}`}>
-          <div className="pt-2 space-y-1">
-            {navItems.map((item) => (
-              <button 
-                key={item.id}
-                onClick={() => scrollToSection(item.id)} 
-                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-colors flex items-center gap-3 ${
-                  activeSection === item.id
-                    ? 'text-emerald-600 bg-emerald-50'
-                    : 'text-gray-600 hover:text-emerald-600 hover:bg-gray-50'
-                }`}
-              >
-                <span>{item.icon}</span>
-                {item.label}
-              </button>
-            ))}
-            <button 
-              onClick={() => scrollToSection('calculator')} 
-              className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-5 py-3 rounded-xl font-semibold mt-3 shadow-lg"
+          <div className="flex items-center gap-4">
+            <a 
+              href="tel:+77001234567" 
+              className="hidden sm:block text-sm font-black text-gray-900"
             >
-              🧮 Рассчитать стоимость
-            </button>
+              +7 700 123 45 67
+            </a>
+            <a 
+              href="#calculator" 
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-emerald-200 transition-all active:scale-95"
+            >
+              Заказать
+            </a>
           </div>
         </div>
       </div>

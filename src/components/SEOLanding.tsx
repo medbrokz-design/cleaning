@@ -65,11 +65,23 @@ export function SEOLanding() {
 
         <Calculator onSubmit={handleOpenModal} />
         <ServiceInfo />
+        
+        {/* Уникальный чек-лист */}
+        <Checklist 
+          customTitle={content?.customChecklist?.title} 
+          customItems={content?.customChecklist?.items} 
+        />
+
         <PriceFactors />
         <LocalSEO />
-        <Testimonials />
+
+        {/* Уникальные отзывы */}
+        <Testimonials customTestimonials={content?.testimonials} />
+
         <CTASection onCTAClick={() => handleOpenModal()} />
-        <FAQEnhanced />
+
+        {/* FAQ с локальными вопросами */}
+        <FAQEnhanced localFAQ={content?.localFAQ} />
       </main>
 
       <RequestModal 

@@ -1,9 +1,14 @@
 import { useState } from 'react';
 
-export function Checklist() {
+interface ChecklistProps {
+  customTitle?: string;
+  customItems?: string[];
+}
+
+export function Checklist({ customTitle, customItems }: ChecklistProps) {
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
 
-  const checklistItems = [
+  const defaultItems = [
     {
       category: 'До заказа',
       icon: '📋',
@@ -49,6 +54,15 @@ export function Checklist() {
       ]
     }
   ];
+
+  const checklistItems = customItems ? [
+    {
+      category: customTitle || 'Чек-лист',
+      icon: '✨',
+      color: 'emerald',
+      items: customItems.map((text, i) => ({ id: `custom-${i}`, text }))
+    }
+  ] : defaultItems;
 
   const totalItems = checklistItems.reduce((acc, section) => acc + section.items.length, 0);
   const checkedCount = checkedItems.size;

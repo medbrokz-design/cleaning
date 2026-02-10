@@ -1,53 +1,74 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAdminStore } from '../store/adminStore';
 
-export function Testimonials() {
+interface TestimonialData {
+  name: string;
+  avatar: string;
+  district: string;
+  type: string;
+  text: string;
+  rating: number;
+  date: string;
+  verified: boolean;
+  subscription: boolean;
+}
+
+interface TestimonialsProps {
+  customTestimonials?: any[];
+}
+
+export function Testimonials({ customTestimonials }: TestimonialsProps) {
   const { reviews } = useAdminStore();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [requestCount, setRequestCount] = useState(4892); // Updated for 2026
+  const [requestCount, setRequestCount] = useState(4892);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   const publishedReviews = reviews.filter(r => r.isPublished);
 
-  // Fallback to static testimonials if no published reviews exist
-  const staticTestimonials = [
-    {
-      name: 'Айгерим К.',
-      avatar: '👩',
-      district: 'Бостандыкский район',
-      type: 'Эко-уборка',
-      text: 'Заказала эко-уборку для квартиры — у нас маленький ребёнок. Клинеры приехали с сертифицированными био-средствами, всё убрали за 3 часа. Оплатила через Kaspi QR после осмотра. Теперь на подписке со скидкой 20%!',
-      rating: 5,
-      date: '2 дня назад',
-      verified: true,
-      subscription: true
-    },
-    {
-      name: 'Марат Т.',
-      avatar: '👨',
-      district: 'Медеуский район',
-      type: 'Уборка после ремонта',
-      text: 'Ремонт в новостройке 120 м². Бригада из 4 человек работала целый день. ИИ-калькулятор точно рассчитал стоимость — разница с итоговым счётом была всего 5%. Фото-отчёт прислали в телеграм. Рекомендую!',
-      rating: 5,
-      date: '5 дней назад',
-      verified: true,
-      subscription: false
-    }
-  ];
-
-  const displayTestimonials = publishedReviews.length > 0 
-    ? publishedReviews.map(r => ({
-        name: r.clientName,
-        avatar: r.clientName.charAt(0),
-        district: 'Алматы',
-        type: 'Услуга клининга',
-        text: r.text,
-        rating: r.rating,
-        date: new Date(r.createdAt).toLocaleDateString('ru-RU'),
+  const displayTestimonials = customTestimonials && customTestimonials.length > 0
+    ? customTestimonials.map(t => ({
+        ...t,
         verified: true,
-        subscription: false
+        subscription: false,
+        district: 'Проверенный отзыв',
+        type: 'Уборка по адресу'
       }))
-    : staticTestimonials;
+    : publishedReviews.length > 0 
+      ? publishedReviews.map(r => ({
+          name: r.clientName,
+          avatar: r.clientName.charAt(0),
+          district: 'Алматы',
+          type: 'Услуга клининга',
+          text: r.text,
+          rating: r.rating,
+          date: new Date(r.createdAt).toLocaleDateString('ru-RU'),
+          verified: true,
+          subscription: false
+        }))
+      : [
+          {
+            name: 'Айгерим К.',
+            avatar: '👩',
+            district: 'Бостандыкский район',
+            type: 'Эко-уборка',
+            text: 'Заказала эко-уборку для квартиры — у нас маленький ребёнок. Клинеры приехали с сертифицированными био-средствами, всё убрали за 3 часа.',
+            rating: 5,
+            date: '2 дня назад',
+            verified: true,
+            subscription: true
+          },
+          {
+            name: 'Марат Т.',
+            avatar: '👨',
+            district: 'Медеуский район',
+            type: 'Уборка после ремонта',
+            text: 'Ремонт в новостройке 120 м². Бригада из 4 человек работала целый день. ИИ-калькулятор точно рассчитал стоимость.',
+            rating: 5,
+            date: '5 дней назад',
+            verified: true,
+            subscription: false
+          }
+        ];
 
   // Simulate live request counter
   useEffect(() => {

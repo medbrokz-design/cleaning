@@ -5,7 +5,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { LoadingSpinner } from './components/LoadingSpinner';
 
 // Lazy load для админ-панели (code splitting)
-const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
 import { Calculator } from './components/Calculator';
 import { ServiceInfo } from './components/ServiceInfo';
 import { PriceFactors } from './components/PriceFactors';

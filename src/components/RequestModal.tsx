@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { formatPhoneNumber, isValidPhone, sanitizeText } from '../utils/validators';
+import { api } from '../store/apiService'; // Упростил импорт
 
 interface RequestModalProps {
   isOpen: boolean;
@@ -84,9 +85,9 @@ export function RequestModal({ isOpen, onClose, calculatorData }: RequestModalPr
     if (!validateStep(2)) return;
     
     setIsLoading(true);
+    setErrors({}); // Сброс старых ошибок
+    
     try {
-      const { api } = await import('../store/apiService');
-      
       const requestData = {
         name: sanitizeText(formData.name),
         phone: formData.phone,
@@ -101,11 +102,14 @@ export function RequestModal({ isOpen, onClose, calculatorData }: RequestModalPr
         time: formData.time,
       };
 
+      console.log('Sending request to Supabase:', requestData);
       await api.createRequest(requestData);
       setIsSubmitted(true);
-    } catch (error) {
-      console.error('Error submitting request:', error);
-      setErrors({ submit: 'Произошла ошибка при отправке. Пожалуйста, попробуйте еще раз.' });
+    } catch (error: any) {
+      console.error('Submission failed:', error);
+      setErrors({ 
+        submit: error.message || 'Ошибка соединения с базой. Проверьте ключи API в Vercel.' 
+      });
     } finally {
       setIsLoading(false);
     }
@@ -115,111 +119,77 @@ export function RequestModal({ isOpen, onClose, calculatorData }: RequestModalPr
     setIsSubmitted(false);
     setStep(1);
     setFormData({
-      name: '',
-      phone: '',
-      messenger: 'whatsapp',
-      address: '',
-      date: '',
-      time: '',
-      comment: ''
+      name: '', phone: '', messenger: 'whatsapp', address: '', date: '', time: '', comment: ''
     });
     setErrors({});
     onClose();
-  };
-
-  const getPropertyLabel = () => {
-    const labels: Record<string, string> = {
-      apartment: 'Квартира',
-      house: 'Дом',
-      office: 'Офис'
-    };
-    return calculatorData?.propertyType ? labels[calculatorData.propertyType] || '' : '';
   };
 
   const getCleaningLabel = () => {
     const labels: Record<string, string> = {
       regular: 'Поддерживающая',
       deep: 'Генеральная',
-      'post-renovation': 'После ремонта'
+      'post-renovation': 'После ремонта',
+      eco: 'Эко-уборка'
     };
-    return calculatorData?.cleaningType ? labels[calculatorData.cleaningType] || '' : '';
+    return calculatorData?.cleaningType ? labels[calculatorData.cleaningType] || 'Уборка' : 'Уборка';
   };
 
   const messengerOptions = [
-    { id: 'whatsapp', label: 'WhatsApp', icon: '📱', color: 'hover:border-green-500 hover:bg-green-50' },
-    { id: 'telegram', label: 'Telegram', icon: '✈️', color: 'hover:border-blue-500 hover:bg-blue-50' },
-    { id: 'phone', label: 'Звонок', icon: '📞', color: 'hover:border-purple-500 hover:bg-purple-50' }
-  ];
-
-  const timeOptions = [
-    { value: '', label: 'Любое время' },
-    { value: 'morning', label: '🌅 Утро (9-12)' },
-    { value: 'afternoon', label: '☀️ День (12-17)' },
-    { value: 'evening', label: '🌆 Вечер (17-20)' }
+    { id: 'whatsapp', label: 'WhatsApp', icon: '📱' },
+    { id: 'telegram', label: 'Telegram', icon: '✈️' },
+    { id: 'phone', label: 'Звонок', icon: '📞' }
   ];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-[60] overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
-        <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden">
-          <button onClick={handleClose} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full z-10">
+        <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
+          <button onClick={handleClose} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 z-10">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
 
           {!isSubmitted ? (
-            <div className="overflow-y-auto max-h-[85vh]">
-              <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-8 text-white text-center">
+            <div className="max-h-[90vh] overflow-y-auto">
+              <div className="bg-emerald-600 px-6 py-8 text-white text-center">
                 <h3 className="text-2xl font-bold mb-2">Оставить заявку</h3>
-                <p className="text-emerald-100 text-sm">Заполните форму, и мы подберем лучших клинеров</p>
-              </div>
-
-              <div className="px-6 pt-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-600">Шаг {step} из 2</span>
-                  <span className="text-sm text-emerald-600 font-semibold">{step * 50}%</span>
-                </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-emerald-500 transition-all duration-300" style={{ width: `${step * 50}%` }} />
-                </div>
+                <p className="text-emerald-100 text-sm">Заполните форму, и мы перезвоним</p>
               </div>
 
               <div className="p-6 space-y-5">
                 {step === 1 && (
                   <>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Ваше имя *</label>
+                      <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Ваше имя</label>
                       <input
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:border-emerald-500 outline-none transition-all ${errors.name ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
-                        placeholder="Как к вам обращаться?"
+                        className={`w-full px-4 py-4 border-2 rounded-2xl outline-none transition-all ${errors.name ? 'border-red-300 bg-red-50' : 'border-gray-100 focus:border-emerald-500'}`}
+                        placeholder="Александр"
                       />
-                      {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                      {errors.name && <p className="text-red-500 text-xs mt-2 font-bold">{errors.name}</p>}
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Телефон *</label>
+                      <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Телефон</label>
                       <input
                         type="tel"
                         value={formData.phone}
                         onChange={handlePhoneChange}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:border-emerald-500 outline-none transition-all ${errors.phone ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
-                        placeholder="+7 (___) ___-__-__"
+                        className={`w-full px-4 py-4 border-2 rounded-2xl outline-none transition-all ${errors.phone ? 'border-red-300 bg-red-50' : 'border-gray-100 focus:border-emerald-500'}`}
+                        placeholder="+7 (777) 000-00-00"
                       />
-                      {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                      {errors.phone && <p className="text-red-500 text-xs mt-2 font-bold">{errors.phone}</p>}
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Мессенджер для связи</label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {messengerOptions.map((opt) => (
-                          <button key={opt.id} onClick={() => setFormData({...formData, messenger: opt.id})} className={`py-2 border-2 rounded-xl text-xs font-bold transition-all ${formData.messenger === opt.id ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-100 text-gray-500'}`}>
-                            {opt.icon} {opt.label}
-                          </button>
-                        ))}
-                      </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {messengerOptions.map((opt) => (
+                        <button key={opt.id} onClick={() => setFormData({...formData, messenger: opt.id})} className={`py-3 border-2 rounded-2xl text-[10px] font-black uppercase transition-all ${formData.messenger === opt.id ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-100 text-gray-400'}`}>
+                          {opt.icon} {opt.label}
+                        </button>
+                      ))}
                     </div>
                   </>
                 )}
@@ -227,44 +197,55 @@ export function RequestModal({ isOpen, onClose, calculatorData }: RequestModalPr
                 {step === 2 && (
                   <>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Район или адрес *</label>
+                      <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Район или адрес</label>
                       <input
                         type="text"
                         value={formData.address}
                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:border-emerald-500 outline-none transition-all ${errors.address ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
-                        placeholder="Например: Бостандыкский район"
+                        className={`w-full px-4 py-4 border-2 rounded-2xl outline-none transition-all ${errors.address ? 'border-red-300 bg-red-50' : 'border-gray-100 focus:border-emerald-500'}`}
+                        placeholder="Бостандыкский, ул. Абая 10"
                       />
-                      {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+                      {errors.address && <p className="text-red-500 text-xs mt-2 font-bold">{errors.address}</p>}
                     </div>
-
                     <div className="grid grid-cols-2 gap-4">
-                      <input type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} className="px-4 py-3 border-2 border-gray-200 rounded-xl outline-none" />
-                      <select value={formData.time} onChange={(e) => setFormData({...formData, time: e.target.value})} className="px-4 py-3 border-2 border-gray-200 rounded-xl outline-none bg-white">
-                        {timeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      <input type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} className="px-4 py-4 border-2 border-gray-100 rounded-2xl outline-none focus:border-emerald-500" />
+                      <select value={formData.time} onChange={(e) => setFormData({...formData, time: e.target.value})} className="px-4 py-4 border-2 border-gray-100 rounded-2xl outline-none bg-white">
+                        <option value="">Любое время</option>
+                        <option value="morning">Утро</option>
+                        <option value="day">День</option>
+                        <option value="evening">Вечер</option>
                       </select>
                     </div>
                   </>
                 )}
 
+                {/* Блок вывода ошибки отправки */}
+                {errors.submit && (
+                  <div className="p-4 bg-red-50 border-2 border-red-100 rounded-2xl text-red-600 text-sm font-bold animate-shake">
+                    ⚠️ {errors.submit}
+                  </div>
+                )}
+
                 <div className="flex gap-3 mt-6">
-                  {step > 1 && <button onClick={() => setStep(step-1)} className="flex-1 py-4 bg-gray-100 text-gray-700 rounded-xl font-bold">Назад</button>}
+                  {step > 1 && <button onClick={() => setStep(step-1)} className="flex-1 py-4 bg-gray-50 text-gray-400 rounded-2xl font-black uppercase tracking-widest text-xs">Назад</button>}
                   {step < 2 ? (
-                    <button onClick={handleNextStep} className="flex-1 py-4 bg-emerald-500 text-white rounded-xl font-bold shadow-lg">Далее</button>
+                    <button onClick={handleNextStep} className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-emerald-100">Далее</button>
                   ) : (
-                    <button onClick={handleSubmit} disabled={isLoading} className="flex-1 py-4 bg-emerald-600 text-white rounded-xl font-bold shadow-lg flex items-center justify-center gap-2">
-                      {isLoading ? 'Отправка...' : 'Отправить'}
+                    <button onClick={handleSubmit} disabled={isLoading} className="flex-1 py-4 bg-emerald-600 disabled:bg-gray-200 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-emerald-100 flex items-center justify-center gap-2">
+                      {isLoading ? (
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                      ) : 'Отправить заявку'}
                     </button>
                   )}
                 </div>
               </div>
             </div>
           ) : (
-            <div className="p-10 text-center">
-              <div className="text-6xl mb-4 text-emerald-500">🎉</div>
-              <h3 className="text-2xl font-bold mb-2">Заявка принята!</h3>
-              <p className="text-gray-600 mb-6">Мы уже ищем исполнителей. Свяжемся с вами в течение часа.</p>
-              <button onClick={handleClose} className="w-full py-4 bg-emerald-500 text-white rounded-xl font-bold shadow-lg">Отлично!</button>
+            <div className="p-12 text-center">
+              <div className="text-7xl mb-6">✅</div>
+              <h3 className="text-2xl font-black mb-2 text-gray-900 uppercase">Готово!</h3>
+              <p className="text-gray-500 mb-8 font-medium">Мы получили вашу заявку. <br />Ожидайте звонка в течение 15 минут.</p>
+              <button onClick={handleClose} className="w-full py-5 bg-gray-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl">Закрыть</button>
             </div>
           )}
         </div>

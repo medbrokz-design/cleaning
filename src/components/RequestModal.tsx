@@ -95,8 +95,8 @@ export function RequestModal({ isOpen, onClose, calculatorData }: RequestModalPr
         comment: sanitizeText(formData.comment),
         serviceType: getCleaningLabel(),
         area: calculatorData?.area || 0,
-        price_min: calculatorData?.min || 0,
-        price_max: calculatorData?.max || 0,
+        price_min: calculatorData?.priceMin || 0,
+        price_max: calculatorData?.priceMax || 0,
         date: formData.date,
         time: formData.time,
       };

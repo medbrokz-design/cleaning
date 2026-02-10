@@ -23,7 +23,7 @@ export function Testimonials({ customTestimonials }: TestimonialsProps) {
   const [requestCount, setRequestCount] = useState(4892);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  const publishedReviews = reviews.filter(r => r.isPublished);
+  const publishedReviews = reviews.filter(r => r.is_published);
 
   const displayTestimonials: TestimonialData[] = customTestimonials && customTestimonials.length > 0
     ? customTestimonials.map((t: any) => ({
@@ -35,13 +35,13 @@ export function Testimonials({ customTestimonials }: TestimonialsProps) {
       }))
     : publishedReviews.length > 0 
       ? publishedReviews.map((r: Review) => ({
-          name: r.clientName,
-          avatar: r.clientName.charAt(0),
+          name: r.client_name,
+          avatar: r.client_name.charAt(0),
           district: 'Алматы',
           type: 'Услуга клининга',
           text: r.text,
           rating: r.rating,
-          date: new Date(r.createdAt).toLocaleDateString('ru-RU'),
+          date: new Date(r.created_at).toLocaleDateString('ru-RU'),
           verified: true,
           subscription: false
         }))
@@ -56,17 +56,6 @@ export function Testimonials({ customTestimonials }: TestimonialsProps) {
             date: '2 дня назад',
             verified: true,
             subscription: true
-          },
-          {
-            name: 'Марат Т.',
-            avatar: '👨',
-            district: 'Медеуский район',
-            type: 'Уборка после ремонта',
-            text: 'Ремонт в новостройке 120 м². Бригада из 4 человек работала целый день. ИИ-калькулятор точно рассчитал стоимость.',
-            rating: 5,
-            date: '5 дней назад',
-            verified: true,
-            subscription: false
           }
         ];
 
@@ -100,11 +89,10 @@ export function Testimonials({ customTestimonials }: TestimonialsProps) {
   return (
     <section className="py-16 lg:py-24 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Stats bar */}
         <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl p-6 lg:p-8 mb-16 shadow-xl shadow-emerald-200/50">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center text-white">
             {stats.map((stat, index) => (
-              <div key={index} className="relative">
+              <div key={index}>
                 <div className="text-3xl mb-2">{stat.icon}</div>
                 <div className="text-2xl sm:text-3xl font-bold">{stat.value}</div>
                 <div className="text-sm opacity-90">{stat.label}</div>
@@ -118,7 +106,6 @@ export function Testimonials({ customTestimonials }: TestimonialsProps) {
           <p className="text-gray-600 max-w-2xl mx-auto text-lg">Реальные истории клиентов</p>
         </div>
 
-        {/* Testimonials slider */}
         <div className="relative max-w-4xl mx-auto">
           <div className="overflow-hidden rounded-2xl">
             <div className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
@@ -126,7 +113,7 @@ export function Testimonials({ customTestimonials }: TestimonialsProps) {
                 <div key={index} className="w-full flex-shrink-0 px-4">
                   <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 sm:p-8 border border-gray-100 shadow-lg">
                     <div className="flex items-start gap-4 mb-6">
-                      <div className="w-14 h-14 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0">
+                      <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0">
                         {testimonial.avatar}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -144,26 +131,8 @@ export function Testimonials({ customTestimonials }: TestimonialsProps) {
               ))}
             </div>
           </div>
-
-          <button onClick={prevSlide} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-6 w-12 h-12 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-emerald-600 transition-all">←</button>
-          <button onClick={nextSlide} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-6 w-12 h-12 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-emerald-600 transition-all">→</button>
-        </div>
-
-        {/* Before/After */}
-        <div className="mt-16 mb-12">
-          <h3 className="text-xl font-bold text-center text-gray-900 mb-8">📸 Результаты до/после</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {beforeAfterExamples.map((example, index) => (
-              <div key={index} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                <div className="text-sm font-medium text-emerald-600 mb-3">{example.type}</div>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 bg-red-50 rounded-xl p-3 text-center text-xs text-red-700">{example.before}</div>
-                  <div className="text-2xl">→</div>
-                  <div className="flex-1 bg-green-50 rounded-xl p-3 text-center text-xs text-green-700">{example.after}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <button onClick={prevSlide} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 w-12 h-12 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center">←</button>
+          <button onClick={nextSlide} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-6 w-12 h-12 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center">→</button>
         </div>
       </div>
     </section>

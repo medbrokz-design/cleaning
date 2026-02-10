@@ -9,6 +9,7 @@ import { AdminDistricts } from './AdminDistricts';
 import { AdminReviews } from './AdminReviews';
 import { AdminAnalytics } from './AdminAnalytics';
 import { AdminSettings } from './AdminSettings';
+import { ToastContainer } from './ToastContainer'; // NEW
 
 type TabId = 'overview' | 'requests' | 'executors' | 'prices' | 'districts' | 'reviews' | 'analytics' | 'settings';
 
@@ -266,6 +267,7 @@ export function AdminDashboard() {
           <ActiveComponent />
         </main>
       </div>
+      <ToastContainer />
     </div>
   );
 }

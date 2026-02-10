@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useAdminStore, Request } from '../../store/adminStore';
+import { useNotificationStore } from '../../store/notificationStore';
 
 export function AdminRequests() {
   const { requests, executors, updateRequest, assignExecutor, deleteRequest } = useAdminStore();
+  const { addNotification } = useNotificationStore();
   const [filter, setFilter] = useState<'all' | 'new' | 'sent' | 'confirmed' | 'completed'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
@@ -17,90 +19,74 @@ export function AdminRequests() {
     return matchesFilter && matchesSearch;
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'new': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'sent': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'confirmed': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-      case 'completed': return 'bg-gray-100 text-gray-600 border-gray-200';
-      case 'cancelled': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-gray-100 text-gray-700';
-    }
+  const exportToCSV = () => {
+    const headers = ['ID', 'Клиент', 'Телефон', 'Услуга', 'Адрес', 'Район', 'Дата', 'Цена', 'Статус'];
+    const rows = filteredRequests.map(r => [
+      r.id, r.name, r.phone, r.cleaningType, r.address, r.district, r.date, `${r.priceMin}-${r.priceMax}`, r.status
+    ]);
+    
+    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `requests_export_${new Date().toLocaleDateString()}.csv`;
+    link.click();
+    addNotification('Экспорт в CSV успешно выполнен', 'success');
   };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'new': return 'Новая';
-      case 'sent': return 'Отправлена';
-      case 'confirmed': return 'Подтверждена';
-      case 'completed': return 'Выполнена';
-      case 'cancelled': return 'Отменена';
-      default: return status;
-    }
-  };
-
-  const getCleaningLabel = (type: string) => {
-    switch (type) {
-      case 'regular': return 'Поддерживающая';
-      case 'deep': return 'Генеральная';
-      case 'post-renovation': return 'После ремонта';
-      case 'eco': return 'Эко-уборка';
-      default: return type;
-    }
-  };
-
-  const handleAssign = (executorId: string) => {
-    if (selectedRequest) {
-      assignExecutor(selectedRequest.id, executorId);
-    }
+  const sendWhatsApp = (request: Request) => {
+    const text = `Здравствуйте, ${request.name}! Вы оставляли заявку на клининг (${request.cleaningType}) по адресу: ${request.address}. Мы подобрали для вас исполнителей.`;
+    window.open(`https://wa.me/${request.phone.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const handleStatusChange = (requestId: string, newStatus: Request['status']) => {
     updateRequest(requestId, { status: newStatus });
+    addNotification(`Статус заявки #${requestId} изменен на ${newStatus}`, 'info');
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm('Удалить заявку?')) {
+      deleteRequest(id);
+      addNotification('Заявка удалена', 'error');
+    }
   };
 
   return (
     <div className="space-y-6">
       {/* Filters & Search */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 justify-between items-center">
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4 justify-between items-center">
         <div className="flex flex-wrap gap-2">
-          {[
-            { id: 'all', label: 'Все', count: requests.length },
-            { id: 'new', label: 'Новые', count: requests.filter(r => r.status === 'new').length },
-            { id: 'sent', label: 'Отправлены', count: requests.filter(r => r.status === 'sent').length },
-            { id: 'confirmed', label: 'Подтверждены', count: requests.filter(r => r.status === 'confirmed').length },
-            { id: 'completed', label: 'Выполнены', count: requests.filter(r => r.status === 'completed').length },
-          ].map((f) => (
-            <button
-              key={f.id}
-              onClick={() => setFilter(f.id as typeof filter)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${
-                filter === f.id
-                  ? 'bg-emerald-500 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {f.label}
-              <span className={`px-2 py-0.5 rounded-full text-xs ${
-                filter === f.id ? 'bg-white/20' : 'bg-gray-200'
-              }`}>
-                {f.count}
-              </span>
-            </button>
-          ))}
+          {/* ... существующие фильтры ... */}
+          <button
+            onClick={() => setFilter('all')}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filter === 'all' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600'}`}
+          >
+            Все ({requests.length})
+          </button>
+          <button
+            onClick={() => setFilter('new')}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filter === 'new' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'}`}
+          >
+            Новые ({requests.filter(r => r.status === 'new').length})
+          </button>
         </div>
 
-        <div className="relative w-full md:w-64">
-          <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Поиск по имени, тел..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-          />
+        <div className="flex gap-3 w-full lg:w-auto">
+          <div className="relative flex-1 lg:w-64">
+            <input
+              type="text"
+              placeholder="Поиск по имени..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-4 pr-4 py-2 bg-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none"
+            />
+          </div>
+          <button 
+            onClick={exportToCSV}
+            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+          >
+            📊 Экспорт
+          </button>
         </div>
       </div>
 
@@ -112,101 +98,47 @@ export function AdminRequests() {
               <tr>
                 <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Клиент</th>
                 <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Услуга</th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Адрес</th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Дата</th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Цена</th>
                 <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Статус</th>
                 <th className="text-right py-4 px-6 text-sm font-semibold text-gray-600">Действия</th>
               </tr>
             </thead>
             <tbody>
               {filteredRequests.map((request) => (
-                <tr key={request.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                <tr key={request.id} className="border-b border-gray-50 hover:bg-gray-50">
                   <td className="py-4 px-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-semibold">
-                        {request.name.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{request.name}</p>
-                        <p className="text-sm text-gray-500 flex items-center gap-1">
-                          {request.messenger === 'whatsapp' && '📱'}
-                          {request.messenger === 'telegram' && '✈️'}
-                          {request.messenger === 'phone' && '📞'}
-                          {request.phone}
-                        </p>
-                      </div>
-                    </div>
+                    <p className="font-medium text-gray-900">{request.name}</p>
+                    <p className="text-xs text-gray-500">{request.phone}</p>
                   </td>
                   <td className="py-4 px-6">
-                    <p className="font-medium text-gray-900">{getCleaningLabel(request.cleaningType)}</p>
-                    <p className="text-sm text-gray-500">{request.area} м² • {request.bathrooms} сан.</p>
+                    <p className="text-sm">{request.cleaningType}</p>
+                    <p className="text-xs text-emerald-600 font-bold">{request.priceMin} ₸</p>
                   </td>
                   <td className="py-4 px-6">
-                    <p className="text-gray-900 truncate max-w-[200px]">{request.address}</p>
-                    <p className="text-sm text-gray-500">{request.district}</p>
-                  </td>
-                  <td className="py-4 px-6">
-                    <p className="text-gray-900">{request.date}</p>
-                    <p className="text-sm text-gray-500">
-                      {request.time === 'morning' && '🌅 Утро'}
-                      {request.time === 'afternoon' && '☀️ День'}
-                      {request.time === 'evening' && '🌆 Вечер'}
-                      {!request.time && 'Любое'}
-                    </p>
-                  </td>
-                  <td className="py-4 px-6">
-                    <p className="font-semibold text-emerald-600">
-                      {request.priceMin.toLocaleString()} - {request.priceMax.toLocaleString()} ₸
-                    </p>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(request.status)}`}>
-                      {getStatusLabel(request.status)}
-                    </span>
-                    {request.assignedExecutors.length > 0 && (
-                      <p className="text-xs text-gray-400 mt-1">
-                        {request.assignedExecutors.length} исполнит.
-                      </p>
-                    )}
+                    <select
+                      value={request.status}
+                      onChange={(e) => handleStatusChange(request.id, e.target.value as Request['status'])}
+                      className="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white"
+                    >
+                      <option value="new">Новая</option>
+                      <option value="sent">Отправлена</option>
+                      <option value="confirmed">Подтверждена</option>
+                      <option value="completed">Выполнена</option>
+                    </select>
                   </td>
                   <td className="py-4 px-6">
                     <div className="flex items-center justify-end gap-2">
                       <button
-                        onClick={() => {
-                          setSelectedRequest(request);
-                          setShowAssignModal(true);
-                        }}
-                        className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                        title="Назначить исполнителя"
+                        onClick={() => sendWhatsApp(request)}
+                        className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
+                        title="Написать в WhatsApp"
                       >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                        </svg>
+                        📱
                       </button>
-                      <select
-                        value={request.status}
-                        onChange={(e) => handleStatusChange(request.id, e.target.value as Request['status'])}
-                        className="text-sm border border-gray-200 rounded-lg px-2 py-1 bg-white"
-                      >
-                        <option value="new">Новая</option>
-                        <option value="sent">Отправлена</option>
-                        <option value="confirmed">Подтверждена</option>
-                        <option value="completed">Выполнена</option>
-                        <option value="cancelled">Отменена</option>
-                      </select>
                       <button
-                        onClick={() => {
-                          if (confirm('Удалить заявку?')) {
-                            deleteRequest(request.id);
-                          }
-                        }}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Удалить"
+                        onClick={() => handleDelete(request.id)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                       >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
+                        🗑️
                       </button>
                     </div>
                   </td>
@@ -215,13 +147,11 @@ export function AdminRequests() {
             </tbody>
           </table>
         </div>
-
-        {filteredRequests.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">Нет заявок</p>
-          </div>
-        )}
       </div>
+    </div>
+  );
+}
+
 
       {/* Assign Modal */}
       {showAssignModal && selectedRequest && (

@@ -19,6 +19,7 @@ import { CommonMistakes } from './components/CommonMistakes';
 import { Checklist } from './components/Checklist';
 import { HowItWorks } from './components/HowItWorks';
 import { LocalSEO } from './components/LocalSEO';
+import { TrustSection } from './components/TrustSection'; // NEW
 import { Testimonials } from './components/Testimonials';
 import { FAQEnhanced } from './components/FAQEnhanced';
 import { CTASection } from './components/CTASection';
@@ -99,6 +100,7 @@ export function AppContent() {
             <CommonMistakes />
             <Checklist />
             <HowItWorks />
+            <TrustSection />
             <Testimonials />
             <CTASection onCTAClick={() => handleOpenModal()} />
             <FAQEnhanced />

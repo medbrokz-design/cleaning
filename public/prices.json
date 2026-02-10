@@ -1,0 +1,18 @@
+{
+  "service": "CleanAlmaty",
+  "version": "2026.1",
+  "location": "Almaty, Kazakhstan",
+  "currency": "KZT",
+  "pricing": {
+    "regular_cleaning": { "base_price": 230, "unit": "m2" },
+    "deep_cleaning": { "base_price": 460, "unit": "m2" },
+    "post_renovation": { "base_price": 690, "unit": "m2" },
+    "eco_cleaning": { "base_price": 300, "unit": "m2" },
+    "windows": { "base_price": 2000, "unit": "window" },
+    "bathroom": { "base_price": 2500, "unit": "room" }
+  },
+  "districts": [
+    "Almaly", "Bostandyk", "Medeu", "Auezov", "Turksib", "Zhetysu", "Nauryzbay", "Alatau"
+  ],
+  "features": ["Kaspi QR", "Eco-friendly", "AI Calculator", "Free for users"]
+}

@@ -39,6 +39,45 @@ export function SEOLanding() {
         <meta name="description" content={content?.description} />
         {content?.keywords && <meta name="keywords" content={content.keywords} />}
         <link rel="canonical" href={`https://cleaning-almaty.kz/${slug}`} />
+        
+        {/* Machine-readable JSON-LD for LLMs */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Service",
+            "name": content?.h1,
+            "description": content?.description,
+            "provider": {
+              "@type": "LocalBusiness",
+              "name": "CleanAlmaty",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Алматы",
+                "addressRegion": content?.district || "Алматы",
+                "addressCountry": "KZ"
+              }
+            },
+            "areaServed": {
+              "@type": "AdministrativeArea",
+              "name": content?.district || "Алматы"
+            },
+            "hasOfferCatalog": {
+              "@type": "OfferCatalog",
+              "name": "Cleaning Services",
+              "itemListElement": [
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": content?.service || "General Cleaning"
+                  },
+                  "priceCurrency": "KZT",
+                  "price": content?.title.match(/\d+/g)?.[0] || "230"
+                }
+              ]
+            }
+          })}
+        </script>
       </Helmet>
 
       <main>

@@ -1,7 +1,10 @@
+import { Link } from 'react-router-dom';
+
 export function LocalSEO() {
   // Updated for 2026 with new districts and prices (+15%)
   const districts = [
     {
+      id: 'bostandykskiy',
       name: 'Бостандыкский район',
       areas: ['Орбита', 'Тастак', 'Аксай', 'Мамыр', 'Коктем', 'Самал-3'],
       landmarks: ['ТРЦ Mega Alma-Ata', 'Алматы Арена', 'КазНУ', 'IT Park'],
@@ -11,6 +14,7 @@ export function LocalSEO() {
       description: 'Самый популярный район 2026. Много новых ЖК и IT-офисов. Высокий спрос на эко-уборку и подписки.'
     },
     {
+      id: 'almalinskiy',
       name: 'Алмалинский район',
       areas: ['Центр', 'Абая', 'Тимирязева', 'Жангильдина', 'Арбат'],
       landmarks: ['ТРЦ Dostyk Plaza', 'Парк 28 Панфиловцев', 'Зелёный базар', 'KBTU'],
@@ -20,6 +24,7 @@ export function LocalSEO() {
       description: 'Деловой центр с премиум-ценами. Много офисов и апартаментов. Экспресс-уборка за 30 мин.'
     },
     {
+      id: 'medeuskiy',
       name: 'Медеуский район',
       areas: ['Самал', 'Достык', 'Каменское плато', 'Баганашыл', 'Коктобе'],
       landmarks: ['Медео', 'Шымбулак', 'Кок-Тобе', 'Esentai Mall'],
@@ -29,6 +34,7 @@ export function LocalSEO() {
       description: 'Элитный район с большими домами. Премиум-сервис и эко-средства включены в стоимость.'
     },
     {
+      id: 'auezovskiy',
       name: 'Ауэзовский район',
       areas: ['Микрорайоны 1-12', 'Алмагуль', 'Жулдыз', 'Аксай-4'],
       landmarks: ['ТРЦ ADK', 'Центральный парк', 'Новые ЖК'],
@@ -38,6 +44,7 @@ export function LocalSEO() {
       description: 'Доступные цены, много молодых семей. Популярны подписки на еженедельную уборку.'
     },
     {
+      id: 'turksibskiy',
       name: 'Турксибский район',
       areas: ['Жетысу', 'Тастак', 'Кулагер', 'Алтын Орда'],
       landmarks: ['Новый вокзал', 'Саяхат', 'ТРЦ Forum'],
@@ -47,6 +54,7 @@ export function LocalSEO() {
       description: 'Активное строительство. Много заказов на уборку после ремонта в новых ЖК.'
     },
     {
+      id: 'zhetysuskiy',
       name: 'Жетысуский район',
       areas: ['Айнабулак', 'Жетысу-1', 'Жетысу-2', 'Кольсай'],
       landmarks: ['Ботанический сад', 'Новые школы'],
@@ -56,6 +64,7 @@ export function LocalSEO() {
       description: 'Семейный район. Высокий спрос на гипоаллергенную эко-уборку для семей с детьми.'
     },
     {
+      id: 'nauryzbayskiy',
       name: 'Наурызбайский район',
       areas: ['Калкаман', 'Карасу', 'Думан', 'Новые ЖК 2025-26'],
       landmarks: ['ТРЦ Март', 'Парк Президента', 'Central Park'],
@@ -65,6 +74,7 @@ export function LocalSEO() {
       description: 'Активно развивается с 2024. Много новостроек, высокий спрос на уборку после ремонта.'
     },
     {
+      id: 'alatauskiy',
       name: 'Алатауский район',
       areas: ['Шанырак', 'Рахат', 'Таугуль', 'Новые массивы'],
       landmarks: ['Промзона', 'Новые микрорайоны'],
@@ -78,6 +88,7 @@ export function LocalSEO() {
   // Updated prices for 2026 (+15% inflation)
   const cleaningPrices = [
     {
+      id: 'regular',
       type: 'Поддерживающая уборка',
       description: 'Регулярная уборка для поддержания чистоты',
       pricePerM2: 'от 230 ₸/м²',
@@ -91,6 +102,7 @@ export function LocalSEO() {
       includes: ['Влажная уборка полов', 'Протирка пыли', 'Уборка санузлов', 'Мытьё зеркал', 'Вынос мусора']
     },
     {
+      id: 'deep',
       type: 'Генеральная уборка',
       description: 'Глубокая уборка всех поверхностей',
       pricePerM2: 'от 460 ₸/м²',
@@ -104,6 +116,7 @@ export function LocalSEO() {
       includes: ['Всё из поддерживающей', 'Мытьё люстр', 'Уборка внутри шкафов', 'Чистка вытяжки', 'Мытьё батарей']
     },
     {
+      id: 'posle-remonta',
       type: 'Уборка после ремонта',
       description: 'Удаление строительной пыли и загрязнений',
       pricePerM2: 'от 690 ₸/м²',
@@ -117,6 +130,7 @@ export function LocalSEO() {
       includes: ['Удаление стройпыли', 'Мытьё окон', 'Очистка стен', 'Удаление плёнки', 'Вывоз мусора']
     },
     {
+      id: 'eco-cleaning',
       type: 'Эко-уборка 🌿',
       description: 'Био-средства, безопасно для детей и аллергиков',
       pricePerM2: 'от 300 ₸/м²',
@@ -159,9 +173,10 @@ export function LocalSEO() {
           </h3>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {cleaningPrices.map((price, index) => (
-              <article 
+              <Link 
+                to={`/${price.id}`}
                 key={index}
-                className={`bg-white rounded-2xl p-6 border shadow-lg hover:shadow-xl transition-shadow relative ${
+                className={`bg-white rounded-2xl p-6 border shadow-lg hover:shadow-xl transition-all relative block hover:-translate-y-1 ${
                   price.isNew ? 'border-green-300 ring-2 ring-green-100' : 'border-gray-100'
                 }`}
                 itemScope
@@ -201,50 +216,17 @@ export function LocalSEO() {
                   ))}
                 </div>
                 
-                {/* Time */}
-                <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Время: {price.time}
-                </div>
-                
-                {/* Includes */}
-                <details className="group">
-                  <summary className="cursor-pointer text-sm font-medium text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
-                    <span>Что входит</span>
-                    <svg className="w-4 h-4 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
+                  <span className="text-xs font-semibold text-emerald-600">Подробнее →</span>
+                  <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                  </summary>
-                  <ul className="mt-2 space-y-1">
-                    {price.includes.map((item, i) => (
-                      <li key={i} className="text-xs text-gray-500 flex items-center gap-2">
-                        <span className="w-1 h-1 bg-emerald-500 rounded-full"></span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              </article>
+                    {price.time}
+                  </div>
+                </div>
+              </Link>
             ))}
-          </div>
-          
-          {/* Subscription banner */}
-          <div className="mt-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-6 text-white text-center">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-              <div className="text-4xl">🔄</div>
-              <div>
-                <h4 className="text-xl font-bold mb-1">Подписка на уборку — скидка до 20%</h4>
-                <p className="text-purple-100">Еженедельная уборка по фиксированной цене. Один клинер, автооплата, бесплатная отмена.</p>
-              </div>
-              <a 
-                href="#calculator"
-                className="flex-shrink-0 bg-white text-purple-600 px-6 py-3 rounded-xl font-semibold hover:bg-purple-50 transition-colors"
-              >
-                Рассчитать →
-              </a>
-            </div>
           </div>
         </div>
 
@@ -255,9 +237,10 @@ export function LocalSEO() {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {districts.map((district, index) => (
-              <article 
+              <Link 
+                to={`/${district.id}`}
                 key={index}
-                className="group bg-white rounded-xl p-5 border border-gray-100 hover:border-emerald-200 hover:shadow-lg transition-all cursor-default"
+                className="group bg-white rounded-xl p-5 border border-gray-100 hover:border-emerald-200 hover:shadow-lg transition-all block hover:-translate-y-1"
                 itemScope
                 itemType="https://schema.org/Service"
               >
@@ -270,7 +253,6 @@ export function LocalSEO() {
                   <h4 className="font-semibold text-gray-900 text-sm" itemProp="name">
                     {district.name}
                   </h4>
-                  {/* Popularity indicator */}
                   <div className="flex items-center gap-1">
                     <div className="w-12 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                       <div 
@@ -281,42 +263,25 @@ export function LocalSEO() {
                   </div>
                 </div>
                 
-                {/* Areas */}
                 <div className="flex flex-wrap gap-1 mb-3">
                   {district.areas.slice(0, 3).map((area, i) => (
-                    <span 
-                      key={i}
-                      className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
-                    >
-                      {area}
-                    </span>
+                    <span key={i} className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{area}</span>
                   ))}
-                  {district.areas.length > 3 && (
-                    <span className="text-xs text-gray-400">
-                      +{district.areas.length - 3}
-                    </span>
-                  )}
                 </div>
                 
-                {/* Price range */}
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-gray-500">Цены:</span>
-                  <span className="font-medium text-emerald-600" itemProp="offers" itemScope itemType="https://schema.org/AggregateOffer">
-                    <meta itemProp="priceCurrency" content="KZT" />
-                    <meta itemProp="lowPrice" content={district.priceRange.split(' - ')[0].replace(/\D/g, '')} />
-                    <meta itemProp="highPrice" content={district.priceRange.split(' - ')[1].replace(/\D/g, '')} />
-                    {district.priceRange}
-                  </span>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-emerald-600">{district.priceRange}</span>
+                  <span className="text-gray-400 group-hover:text-emerald-500 transition-colors">Смотреть →</span>
                 </div>
-                
-                {/* Expanded info on hover */}
-                <div className="mt-3 pt-3 border-t border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <p className="text-xs text-gray-500 leading-relaxed" itemProp="description">
-                    {district.description}
-                  </p>
-                </div>
-              </article>
+              </Link>
             ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
           </div>
         </div>
 

@@ -78,6 +78,18 @@ export interface FAQItem {
   order: number;
 }
 
+export interface Review {
+  id: string;
+  requestId: string;
+  executorId: string;
+  clientName: string;
+  rating: number;
+  text: string;
+  isPublished: boolean;
+  moderatedAt?: string;
+  createdAt: string;
+}
+
 export interface Settings {
   siteName: string;
   phone: string;
@@ -103,6 +115,7 @@ interface AdminState {
   prices: PriceSettings;
   districts: District[];
   faqItems: FAQItem[];
+  reviews: Review[];
   settings: Settings;
   
   // Stats
@@ -143,6 +156,12 @@ interface AdminState {
   addFAQ: (faq: Omit<FAQItem, 'id'>) => void;
   updateFAQ: (id: string, data: Partial<FAQItem>) => void;
   deleteFAQ: (id: string) => void;
+
+  // Actions - Reviews
+  addReview: (review: Omit<Review, 'id' | 'createdAt'>) => void;
+  updateReview: (id: string, data: Partial<Review>) => void;
+  deleteReview: (id: string) => void;
+  toggleReviewPublished: (id: string, published: boolean) => void;
   
   // Actions - Settings
   updateSettings: (settings: Partial<Settings>) => void;
@@ -170,6 +189,20 @@ const initialDistricts: District[] = [
   { id: '6', name: 'Жетысуский район', areas: ['Айнабулак', 'Жетысу-1'], isActive: true, extraCharge: 0, executorsCount: 10 },
   { id: '7', name: 'Наурызбайский район', areas: ['Калкаман', 'Карасу'], isActive: true, extraCharge: 1500, executorsCount: 8 },
   { id: '8', name: 'Алатауский район', areas: ['Шанырак', 'Рахат'], isActive: true, extraCharge: 2000, executorsCount: 5 },
+];
+
+const initialReviews: Review[] = [
+  {
+    id: 'r1',
+    requestId: '1',
+    executorId: '1',
+    clientName: 'Марат С.',
+    rating: 5,
+    text: 'Отличная работа! Дом после ремонта сияет чистотой. Рекомендую!',
+    isPublished: true,
+    moderatedAt: '2026-01-15T12:00:00',
+    createdAt: '2026-01-14T10:00:00'
+  }
 ];
 
 const initialExecutors: Executor[] = [
@@ -337,6 +370,7 @@ export const useAdminStore = create<AdminState>()(
       prices: initialPrices,
       districts: initialDistricts,
       faqItems: [],
+      reviews: initialReviews,
       settings: initialSettings,
       stats: {
         totalRequests: 4892,
@@ -493,6 +527,40 @@ export const useAdminStore = create<AdminState>()(
           faqItems: state.faqItems.filter((f) => f.id !== id),
         }));
       },
+
+      // Reviews
+      addReview: (review) => {
+        const newReview: Review = {
+          ...review,
+          id: generateId(),
+          createdAt: new Date().toISOString(),
+        };
+        set((state) => ({
+          reviews: [newReview, ...state.reviews],
+        }));
+      },
+
+      updateReview: (id, data) => {
+        set((state) => ({
+          reviews: state.reviews.map((r) =>
+            r.id === id ? { ...r, ...data } : r
+          ),
+        }));
+      },
+
+      deleteReview: (id) => {
+        set((state) => ({
+          reviews: state.reviews.filter((r) => r.id !== id),
+        }));
+      },
+
+      toggleReviewPublished: (id, published) => {
+        set((state) => ({
+          reviews: state.reviews.map((r) =>
+            r.id === id ? { ...r, isPublished: published, moderatedAt: new Date().toISOString() } : r
+          ),
+        }));
+      },
       
       // Settings
       updateSettings: (settings) => {
@@ -511,6 +579,7 @@ export const useAdminStore = create<AdminState>()(
         prices: state.prices,
         districts: state.districts,
         faqItems: state.faqItems,
+        reviews: state.reviews,
         settings: state.settings,
       }),
     }

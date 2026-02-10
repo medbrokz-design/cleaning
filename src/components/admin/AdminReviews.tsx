@@ -14,52 +14,8 @@ interface Review {
 }
 
 export function AdminReviews() {
-  const { executors } = useAdminStore();
+  const { executors, reviews, toggleReviewPublished, deleteReview } = useAdminStore();
   const [filter, setFilter] = useState<'all' | 'pending' | 'published'>('all');
-  const [reviews, setReviews] = useState<Review[]>([
-    {
-      id: 'r1',
-      requestId: '1003',
-      executorId: '1',
-      clientName: 'Марат С.',
-      rating: 5,
-      text: 'Отличная работа! Дом после ремонта сияет чистотой. Рекомендую!',
-      isPublished: true,
-      moderatedAt: new Date().toISOString(),
-      createdAt: new Date(Date.now() - 86400000).toISOString()
-    },
-    {
-      id: 'r2',
-      requestId: '999',
-      executorId: '2',
-      clientName: 'Гульнара М.',
-      rating: 5,
-      text: 'Заказывала эко-уборку. Очень довольна - безопасно для ребенка-аллергика.',
-      isPublished: true,
-      moderatedAt: new Date().toISOString(),
-      createdAt: new Date(Date.now() - 172800000).toISOString()
-    },
-    {
-      id: 'r3',
-      requestId: '998',
-      executorId: '3',
-      clientName: 'Арман К.',
-      rating: 4,
-      text: 'Хорошая уборка, но немного задержались. В целом рекомендую.',
-      isPublished: false,
-      createdAt: new Date(Date.now() - 3600000).toISOString()
-    },
-    {
-      id: 'r4',
-      requestId: '997',
-      executorId: '1',
-      clientName: 'Айжан Б.',
-      rating: 5,
-      text: 'Пользуемся подпиской уже 3 месяца. Всегда приходят вовремя, убирают тщательно.',
-      isPublished: false,
-      createdAt: new Date(Date.now() - 7200000).toISOString()
-    }
-  ]);
 
   const filteredReviews = filter === 'all'
     ? reviews
@@ -74,14 +30,12 @@ export function AdminReviews() {
     : '0';
 
   const handleModerate = (id: string, publish: boolean) => {
-    setReviews(prev => prev.map(r =>
-      r.id === id ? { ...r, isPublished: publish, moderatedAt: new Date().toISOString() } : r
-    ));
+    toggleReviewPublished(id, publish);
   };
 
   const handleDelete = (id: string) => {
     if (confirm('Удалить отзыв?')) {
-      setReviews(prev => prev.filter(r => r.id !== id));
+      deleteReview(id);
     }
   };
 

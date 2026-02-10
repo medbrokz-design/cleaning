@@ -4,12 +4,18 @@ import { useAdminStore, Request } from '../../store/adminStore';
 export function AdminRequests() {
   const { requests, executors, updateRequest, assignExecutor, deleteRequest } = useAdminStore();
   const [filter, setFilter] = useState<'all' | 'new' | 'sent' | 'confirmed' | 'completed'>('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
   const [showAssignModal, setShowAssignModal] = useState(false);
 
-  const filteredRequests = filter === 'all' 
-    ? requests 
-    : requests.filter(r => r.status === filter);
+  const filteredRequests = requests.filter(r => {
+    const matchesFilter = filter === 'all' || r.status === filter;
+    const matchesSearch = 
+      r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.phone.includes(searchTerm) ||
+      r.address.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -55,8 +61,8 @@ export function AdminRequests() {
 
   return (
     <div className="space-y-6">
-      {/* Filters */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+      {/* Filters & Search */}
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 justify-between items-center">
         <div className="flex flex-wrap gap-2">
           {[
             { id: 'all', label: 'Все', count: requests.length },
@@ -82,6 +88,19 @@ export function AdminRequests() {
               </span>
             </button>
           ))}
+        </div>
+
+        <div className="relative w-full md:w-64">
+          <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Поиск по имени, тел..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+          />
         </div>
       </div>
 

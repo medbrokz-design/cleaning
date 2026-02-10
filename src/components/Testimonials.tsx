@@ -1,29 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useAdminStore } from '../store/adminStore';
 
 export function Testimonials() {
+  const { reviews } = useAdminStore();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [requestCount, setRequestCount] = useState(4892); // Updated for 2026
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  // Simulate live request counter
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (Math.random() > 0.6) {
-        setRequestCount(prev => prev + 1);
-      }
-    }, 8000);
-    return () => clearInterval(interval);
-  }, []);
+  const publishedReviews = reviews.filter(r => r.isPublished);
 
-  // Updated testimonials for 2026
-  // Before/After examples for trust
-const beforeAfterExamples = [
-  { type: 'Генеральная', before: '😰 Пыль везде, разводы', after: '✨ Идеальная чистота', improvement: '98%' },
-  { type: 'После ремонта', before: '🔨 Строительная пыль', after: '🏠 Как новая квартира', improvement: '100%' },
-  { type: 'Эко-уборка', before: '🤧 Аллергия у ребёнка', after: '🌿 Безопасно и чисто', improvement: '95%' },
-];
-
-const testimonials = [
+  // Fallback to static testimonials if no published reviews exist
+  const staticTestimonials = [
     {
       name: 'Айгерим К.',
       avatar: '👩',
@@ -45,67 +32,47 @@ const testimonials = [
       date: '5 дней назад',
       verified: true,
       subscription: false
-    },
-    {
-      name: 'Динара С.',
-      avatar: '👩‍🦰',
-      district: 'Алмалинский район',
-      type: 'Подписка на уборку',
-      text: 'Уже год на подписке — каждую субботу приходит один и тот же клинер. Знает где что лежит, не нужно каждый раз объяснять. Скидка 20% экономит около 5000 тенге в месяц. Автосписание через Kaspi — удобно!',
-      rating: 5,
-      date: 'неделю назад',
-      verified: true,
-      subscription: true
-    },
-    {
-      name: 'Алексей В.',
-      avatar: '👨‍💼',
-      district: 'Ауэзовский район',
-      type: 'Генеральная уборка',
-      text: 'Экспресс-заказ за 2 часа до приезда гостей. Думал не успеют, но клинер приехала через 40 минут! Генеральная уборка 80 м² заняла 5 часов. Наценка за срочность всего 20% — оно того стоило.',
-      rating: 5,
-      date: '2 недели назад',
-      verified: true,
-      subscription: false
-    },
-    {
-      name: 'Гульнара М.',
-      avatar: '👩‍🔬',
-      district: 'Наурызбайский район',
-      type: 'Уборка офиса',
-      text: 'IT-офис 300 м² в новом бизнес-центре. Нашли через сервис компанию с опытом уборки офисов. Теперь убираются 3 раза в неделю по ночам. Договор, акты, всё официально. Очень довольны!',
-      rating: 5,
-      date: '3 недели назад',
-      verified: true,
-      subscription: true
-    },
-    {
-      name: 'Азамат Н.',
-      avatar: '👨‍🦱',
-      district: 'Жетысуский район',
-      type: 'Эко-уборка',
-      text: 'У жены аллергия на бытовую химию. Раньше сама убиралась, теперь заказываем эко-уборку. Никаких реакций! Клинеры показывают сертификаты на средства. Чуть дороже обычной, но здоровье важнее.',
-      rating: 5,
-      date: 'месяц назад',
-      verified: true,
-      subscription: true
     }
   ];
 
+  const displayTestimonials = publishedReviews.length > 0 
+    ? publishedReviews.map(r => ({
+        name: r.clientName,
+        avatar: r.clientName.charAt(0),
+        district: 'Алматы',
+        type: 'Услуга клининга',
+        text: r.text,
+        rating: r.rating,
+        date: new Date(r.createdAt).toLocaleDateString('ru-RU'),
+        verified: true,
+        subscription: false
+      }))
+    : staticTestimonials;
+
+  // Simulate live request counter
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Math.random() > 0.6) {
+        setRequestCount(prev => prev + 1);
+      }
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
+
   const nextSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % testimonials.length);
-  }, [testimonials.length]);
+    setCurrentSlide((prev) => (prev + 1) % displayTestimonials.length);
+  }, [displayTestimonials.length]);
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    setCurrentSlide((prev) => (prev - 1 + displayTestimonials.length) % displayTestimonials.length);
   };
 
   // Auto-play
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!isAutoPlaying || displayTestimonials.length <= 1) return;
     const interval = setInterval(nextSlide, 5000);
     return () => clearInterval(interval);
-  }, [isAutoPlaying, nextSlide]);
+  }, [isAutoPlaying, nextSlide, displayTestimonials.length]);
 
   // Updated stats for 2026
   const stats = [

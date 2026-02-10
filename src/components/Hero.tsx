@@ -15,17 +15,40 @@ export function Hero({ onCTAClick }: HeroProps) {
     setIsOnline(hour >= 8 && hour < 22); // Extended hours for 2026
   }, []);
 
-  // Typing effect
+  // Typing effect with pause at full text
   useEffect(() => {
     let index = 0;
+    let deleting = false;
+    let pauseTimer: ReturnType<typeof setTimeout> | null = null;
+
     const timer = setInterval(() => {
-      setTypedText(fullText.slice(0, index));
-      index++;
-      if (index > fullText.length) {
-        index = 0;
+      if (pauseTimer) return;
+
+      if (!deleting) {
+        setTypedText(fullText.slice(0, index));
+        index++;
+        if (index > fullText.length) {
+          pauseTimer = setTimeout(() => {
+            deleting = true;
+            pauseTimer = null;
+          }, 2000);
+        }
+      } else {
+        index--;
+        setTypedText(fullText.slice(0, index));
+        if (index === 0) {
+          deleting = false;
+          pauseTimer = setTimeout(() => {
+            pauseTimer = null;
+          }, 500);
+        }
       }
-    }, 120);
-    return () => clearInterval(timer);
+    }, 80);
+
+    return () => {
+      clearInterval(timer);
+      if (pauseTimer) clearTimeout(pauseTimer);
+    };
   }, []);
 
   const trustItems = [

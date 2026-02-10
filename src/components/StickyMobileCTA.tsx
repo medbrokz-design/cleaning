@@ -21,7 +21,7 @@ export function StickyMobileCTA({ onCTAClick }: StickyMobileCTAProps) {
   useEffect(() => {
     const now = new Date();
     const hour = now.getHours();
-    setIsOnline(hour >= 9 && hour < 21);
+    setIsOnline(hour >= 8 && hour < 22);
   }, []);
 
   // Pulse animation every 5 seconds

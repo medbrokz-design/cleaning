@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Главная -->
-  <url>
-    <loc>https://cleaning-almaty.kz/</loc>
-    <lastmod>2026-02-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  
-  <!-- Районы -->
+  <url><loc>https://cleaning-almaty.kz/</loc><lastmod>2026-02-10</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://cleaning-almaty.kz/bostandykskiy</loc><lastmod>2026-02-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://cleaning-almaty.kz/medeuskiy</loc><lastmod>2026-02-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://cleaning-almaty.kz/almalinskiy</loc><lastmod>2026-02-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
@@ -16,9 +8,8 @@
   <url><loc>https://cleaning-almaty.kz/turksibskiy</loc><lastmod>2026-02-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://cleaning-almaty.kz/zhetysuskiy</loc><lastmod>2026-02-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://cleaning-almaty.kz/nauryzbayskiy</loc><lastmod>2026-02-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://cleaning-almaty.kz/alatauskiy</loc><lastmod>2026-02-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-
-  <!-- Услуги -->
-  <url><loc>https://cleaning-almaty.kz/posle-remonta</loc><lastmod>2026-02-10</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://cleaning-almaty.kz/eco-cleaning</loc><lastmod>2026-02-10</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://cleaning-almaty.kz/alatauskiy</loc><lastmod>2026-02-10</lastmod><changefreq>monthly</priority></url>
+  <url><loc>https://cleaning-almaty.kz/posle-remonta</loc><lastmod>2026-02-10</lastmod><changefreq>monthly</priority></url>
+  <url><loc>https://cleaning-almaty.kz/eco-cleaning</loc><lastmod>2026-02-10</lastmod><changefreq>monthly</priority></url>
+  <url><loc>https://cleaning-almaty.kz/furniture-cleaning</loc><lastmod>2026-02-10</lastmod><changefreq>monthly</priority></url>
 </urlset>

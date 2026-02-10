@@ -32,9 +32,20 @@ function ScrollToTop() {
   return null;
 }
 
+interface CalculatorData {
+  propertyType: string;
+  cleaningType: string;
+  area: number;
+  bathrooms: number;
+  windows: boolean;
+  dirtLevel: string;
+  priceMin: number;
+  priceMax: number;
+}
+
 export function AppContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [calculatorData, setCalculatorData] = useState<any>(null);
+  const [calculatorData, setCalculatorData] = useState<CalculatorData | null>(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const location = useLocation();
 

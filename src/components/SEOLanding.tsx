@@ -13,17 +13,28 @@ import { CTASection } from './CTASection';
 import { RequestModal } from './RequestModal';
 import { useState } from 'react';
 
+interface CalculatorData {
+  propertyType: string;
+  cleaningType: string;
+  area: number;
+  bathrooms: number;
+  windows: boolean;
+  dirtLevel: string;
+  priceMin: number;
+  priceMax: number;
+}
+
 export function SEOLanding() {
   const { slug } = useParams();
   const content = slug ? seoData[slug] : null;
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [calculatorData, setCalculatorData] = useState<any>(null);
+  const [calculatorData, setCalculatorData] = useState<CalculatorData | null>(null);
 
   if (!content && slug) {
     return <Navigate to="/" replace />;
   }
 
-  const handleOpenModal = (data?: any) => {
+  const handleOpenModal = (data?: CalculatorData) => {
     if (data) setCalculatorData(data);
     setIsModalOpen(true);
   };

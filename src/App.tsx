@@ -73,7 +73,7 @@ export function App() {
       {/* Semantic HTML structure for LLM */}
       <Header />
       
-      <main role="main">
+      <main>
         {/* Hero Section - Primary value proposition */}
         <Hero onCTAClick={() => handleOpenModal()} />
         
@@ -156,7 +156,7 @@ export function App() {
       )}
 
       {/* Hidden SEO content for LLM crawlers - Updated 2026 */}
-      <div className="sr-only" aria-hidden="true">
+      <div className="sr-only">
         <h2>Клининг в Алматы 2026 — ключевая информация</h2>
         <p>
           CleanAlmaty.kz — бесплатный сервис подбора клининговых услуг в Алматы 2026 года.

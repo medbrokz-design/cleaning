@@ -99,16 +99,18 @@ export function AdminLogin() {
             </button>
           </form>
 
-          {/* Demo credentials */}
-          <div className="mt-6 p-4 bg-gray-700/50 rounded-xl border border-gray-600">
-            <p className="text-xs text-gray-400 mb-2">Демо-доступ:</p>
-            <p className="text-sm text-gray-300">
-              Email: <code className="bg-gray-600 px-1 rounded">admin@cleanalmaty.kz</code>
-            </p>
-            <p className="text-sm text-gray-300">
-              Пароль: <code className="bg-gray-600 px-1 rounded">admin2026</code>
-            </p>
-          </div>
+          {/* Demo credentials - only show in development */}
+          {import.meta.env.DEV && (
+            <div className="mt-6 p-4 bg-gray-700/50 rounded-xl border border-gray-600">
+              <p className="text-xs text-gray-400 mb-2">Демо-доступ (только в dev):</p>
+              <p className="text-sm text-gray-300">
+                Email: <code className="bg-gray-600 px-1 rounded">admin@cleanalmaty.kz</code>
+              </p>
+              <p className="text-sm text-gray-300">
+                Пароль: <code className="bg-gray-600 px-1 rounded">admin2026</code>
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Back to site */}

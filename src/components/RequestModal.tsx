@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { sanitizeText } from '../utils/validators';
 
 interface RequestModalProps {
   isOpen: boolean;
@@ -96,7 +97,11 @@ export function RequestModal({ isOpen, onClose, calculatorData }: RequestModalPr
       const { api } = await import('../store/apiService');
       
       const requestData = {
-        ...formData,
+        name: sanitizeText(formData.name),
+        phone: formData.phone,
+        messenger: formData.messenger,
+        address: sanitizeText(formData.address),
+        comment: sanitizeText(formData.comment),
         serviceType: getCleaningLabel(),
         propertyType: getPropertyLabel(),
         area: calculatorData?.area || 0,

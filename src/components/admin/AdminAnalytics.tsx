@@ -11,7 +11,7 @@ export function AdminAnalytics() {
   };
 
   const serviceStats = requests.reduce((acc, r) => {
-    acc[r.cleaningType] = (acc[r.cleaningType] || 0) + 1;
+    acc[r.cleaning_type] = (acc[r.cleaning_type] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -19,12 +19,11 @@ export function AdminAnalytics() {
 
   // Completed revenue & Profit
   const completedRequests = requests.filter(r => r.status === 'completed');
-  const totalRevenue = completedRequests.reduce((sum, r) => sum + r.priceMax, 0);
+  const totalRevenue = completedRequests.reduce((sum, r) => sum + r.price_max, 0);
   const commissionRate = 0.15; // Ваша доля — 15%
   const estimatedProfit = totalRevenue * commissionRate;
   const avgCheck = completedRequests.length > 0 ? Math.round(totalRevenue / completedRequests.length) : 0;
 
-  // Conversion funnel
   const funnelData = [
     { label: 'Все заявки', count: requests.length, color: 'bg-blue-500' },
     { label: 'Отправлены', count: requests.filter(r => r.status !== 'new').length, color: 'bg-indigo-500' },
@@ -33,7 +32,6 @@ export function AdminAnalytics() {
 
   return (
     <div className="space-y-6">
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <p className="text-sm text-gray-500">Оборотка (Завершено)</p>
@@ -52,13 +50,12 @@ export function AdminAnalytics() {
         </div>
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <p className="text-sm text-gray-500">Активные клинеры</p>
-          <p className="text-2xl font-bold text-blue-600 mt-2">{executors.filter(e => e.isActive).length}</p>
+          <p className="text-2xl font-bold text-blue-600 mt-2">{executors.filter(e => e.is_active).length}</p>
           <p className="text-xs text-gray-400 mt-1">из {executors.length} зарегистрированных</p>
         </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        {/* Funnel */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <h3 className="font-bold text-gray-900 mb-6">Воронка продаж</h3>
           <div className="space-y-4">
@@ -76,7 +73,6 @@ export function AdminAnalytics() {
           </div>
         </div>
 
-        {/* Services */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <h3 className="font-bold text-gray-900 mb-6">Самые прибыльные услуги</h3>
           <div className="space-y-4">

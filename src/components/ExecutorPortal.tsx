@@ -18,7 +18,7 @@ export function ExecutorPortal() {
     }
   };
 
-  const executorRequests = requests.filter(r => r.assignedExecutors.includes(currentExecutor?.id));
+  const executorRequests = requests.filter(r => r.assigned_executors.includes(currentExecutor?.id));
 
   if (!currentExecutor) {
     return (
@@ -57,7 +57,7 @@ export function ExecutorPortal() {
                   <span className={`px-3 py-1 rounded-full text-xs font-bold ${req.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
                     {req.status === 'confirmed' ? 'В работе' : 'Назначен'}
                   </span>
-                  <span className="text-emerald-600 font-bold">{req.priceMin} ₸</span>
+                  <span className="text-emerald-600 font-bold">{req.price_min} ₸</span>
                 </div>
                 <h3 className="font-bold text-lg mb-1">{req.name}</h3>
                 <p className="text-gray-600 text-sm mb-4">{req.address}</p>

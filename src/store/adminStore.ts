@@ -45,6 +45,14 @@ export interface Executor {
   notes: string;
 }
 
+export interface District {
+  id: string;
+  name: string;
+  areas: string[];
+  is_active: boolean;
+  extra_charge: number;
+}
+
 export interface Review {
   id: string;
   request_id: string;
@@ -88,6 +96,7 @@ interface AdminState {
   requests: Request[];
   executors: Executor[];
   reviews: Review[];
+  districts: District[];
   prices: PriceSettings;
   settings: Settings;
   stats: {
@@ -114,6 +123,8 @@ interface AdminState {
   
   updatePrices: (prices: PriceSettings) => Promise<void>;
   updateSettings: (settings: Settings) => Promise<void>;
+  updateDistrict: (id: string, data: any) => Promise<void>;
+  toggleDistrictActive: (id: string) => Promise<void>;
   toggleReviewPublished: (id: string, published: boolean) => Promise<void>;
   deleteReview: (id: string) => Promise<void>;
 }
@@ -124,6 +135,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
   requests: [],
   executors: [],
   reviews: [],
+  districts: [],
   prices: {
     regular: 230,
     deep: 460,
@@ -167,6 +179,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
       const { data: reqs } = await supabase.from('requests').select('*').order('created_at', { ascending: false });
       const { data: execs } = await supabase.from('executors').select('*');
       const { data: revs } = await supabase.from('reviews').select('*').order('created_at', { ascending: false });
+      const { data: dists } = await supabase.from('districts').select('*');
       const { data: setts } = await supabase.from('settings').select('*');
       
       await get().fetchPublicData();
@@ -174,6 +187,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
       if (reqs) set({ requests: reqs });
       if (execs) set({ executors: execs });
       if (revs) set({ reviews: revs });
+      if (dists) set({ districts: dists });
       
       if (setts) {
         const prices = setts.find(s => s.key === 'prices')?.value;
@@ -260,6 +274,19 @@ export const useAdminStore = create<AdminState>((set, get) => ({
   updateSettings: async (newSettings) => {
     await supabase.from('settings').upsert({ key: 'general', value: newSettings });
     set({ settings: newSettings });
+  },
+
+  updateDistrict: async (id, data) => {
+    await supabase.from('districts').update(data).eq('id', id);
+    await get().fetchData();
+  },
+
+  toggleDistrictActive: async (id) => {
+    const district = get().districts.find(d => d.id === id);
+    if (district) {
+      await supabase.from('districts').update({ is_active: !district.is_active }).eq('id', id);
+      await get().fetchData();
+    }
   },
 
   toggleReviewPublished: async (id, published) => {

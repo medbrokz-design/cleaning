@@ -65,8 +65,17 @@ export function Calculator({ onSubmit }: CalculatorProps) {
   };
 
   const nextStep = () => {
-    if (step < totalSteps) setStep(step + 1);
-    else setShowResult(true);
+    if (step < totalSteps) {
+      setStep(step + 1);
+      import('../store/apiService').then(({ AnalyticsService }) => {
+        AnalyticsService.trackEvent('calculator', 'step_complete', `step_${step}`);
+      });
+    } else {
+      setShowResult(true);
+      import('../store/apiService').then(({ AnalyticsService }) => {
+        AnalyticsService.trackEvent('calculator', 'result_shown');
+      });
+    }
   };
 
   const prevStep = () => {

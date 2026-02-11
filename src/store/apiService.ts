@@ -52,11 +52,29 @@ export const TelegramService = {
 
 // Analytics Service
 export const AnalyticsService = {
+  getUTM() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      source: params.get('utm_source') || 'organic',
+      medium: params.get('utm_medium') || 'direct',
+      campaign: params.get('utm_campaign') || 'none',
+    };
+  },
+
   trackEvent(category: string, action: string, label?: string, value?: number) {
     if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', action, { event_category: category, event_label: label, value });
+      (window as any).gtag('event', action, { 
+        event_category: category, 
+        event_label: label, 
+        value,
+        ...this.getUTM()
+      });
     }
-    console.log('Analytics event:', { category, action, label, value });
+    console.log(`[Analytics] ${category} -> ${action}`, { label, value, utm: this.getUTM() });
+  },
+
+  trackStep(stepName: string, stepNumber: number) {
+    this.trackEvent('calculator_funnel', 'step_complete', stepName, stepNumber);
   }
 };
 

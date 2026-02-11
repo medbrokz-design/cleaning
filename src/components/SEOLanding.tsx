@@ -52,21 +52,36 @@ export function SEOLanding() {
         {content?.keywords && <meta name="keywords" content={content.keywords} />}
         <link rel="canonical" href={`https://cleaning-almaty.kz/${slug}`} />
         
-        {/* Machine-readable JSON-LD for LLMs */}
+        {/* Machine-readable JSON-LD for LLMs and Voice Agents */}
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Service",
             "name": content?.h1,
             "description": content?.description,
+            "speakable": {
+              "@type": "SpeakableSpecification",
+              "xpath": [
+                "/html/head/title",
+                "/html/head/meta[@name='description']/@content"
+              ]
+            },
             "provider": {
               "@type": "LocalBusiness",
               "name": "CleanAlmaty",
+              "telephone": "+7-700-123-45-67",
+              "priceRange": "₸₸",
               "address": {
                 "@type": "PostalAddress",
                 "addressLocality": "Алматы",
                 "addressRegion": content?.district || "Алматы",
                 "addressCountry": "KZ"
+              },
+              "openingHours": "Mo-Su 08:00-22:00",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": "43.238949",
+                "longitude": "76.945465"
               }
             },
             "areaServed": {

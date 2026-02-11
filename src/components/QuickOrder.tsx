@@ -58,12 +58,14 @@ export function QuickOrder() {
           value={phone}
           onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
           placeholder="+7 (7xx) xxx-xx-xx"
+          aria-label="Ваш номер телефона для быстрого заказа"
           className="flex-1 px-6 py-4 bg-white rounded-xl text-gray-900 font-bold outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
           required
         />
         <button
           type="submit"
           disabled={isLoading}
+          aria-label="Отправить заявку на обратный звонок"
           className="px-8 py-4 bg-emerald-500 hover:bg-emerald-400 disabled:bg-gray-400 text-white rounded-xl font-black uppercase tracking-tighter transition-all active:scale-95 shadow-lg shadow-emerald-500/20"
         >
           {isLoading ? '...' : 'Жду звонка'}

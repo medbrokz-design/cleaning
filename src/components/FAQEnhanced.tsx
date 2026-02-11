@@ -5,7 +5,6 @@ interface FAQItem {
   answer: string;
   icon: string;
   category: string;
-  keywords: string[];
 }
 
 interface FAQEnhancedProps {
@@ -15,100 +14,84 @@ interface FAQEnhancedProps {
 export function FAQEnhanced({ localFAQ }: FAQEnhancedProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('all');
 
   const faqItems: FAQItem[] = [
+    // Разговорные вопросы для голосовых ассистентов
     {
-      question: 'Сколько стоит уборка квартиры в Алматы?',
-      answer: 'Стоимость уборки в 2026 году: поддерживающая от 230 ₸/м², генеральная от 460 ₸/м², после ремонта от 690 ₸/м². Оплата через Kaspi QR.',
-      icon: '💰',
-      category: 'prices',
-      keywords: ['цена', 'стоимость', 'тенге']
+      question: 'Алекса, сколько стоит помыть квартиру в Алматы?',
+      answer: 'В 2026 году средняя цена за поддерживающую уборку в Алматы составляет 230 тенге за квадратный метр. Генеральная уборка стоит от 460 тенге. Точный расчет вы можете сделать в нашем калькуляторе на сайте.',
+      icon: '🎙️',
+      category: 'voice'
     },
     {
-      question: 'Какие районы Алматы обслуживаете?',
-      answer: 'Все 8 районов Алматы: Бостандыкский, Медеуский, Алмалинский, Ауэзовский, Жетысуский, Турксибский, Наурызбайский, Алатауский.',
-      icon: '📍',
-      category: 'location',
-      keywords: ['район', 'выезд']
+      question: 'Окей Гугл, как долго длится генеральная уборка?',
+      answer: 'Генеральная уборка квартиры площадью 50 квадратных метров обычно занимает от 4 до 6 часов. Если работают два клинера, время сокращается вдвое.',
+      icon: '⏱️',
+      category: 'time'
     },
     {
-      question: 'Привозите ли свои средства?',
-      answer: 'Да, клинеры привозят всё необходимое: пылесос, стремянки и сертифицированные эко-средства (по запросу).',
-      icon: '🧴',
-      category: 'executors',
-      keywords: ['средства', 'химия']
+      question: 'Сири, можно ли оплатить уборку через Каспи QR?',
+      answer: 'Да, все наши исполнители принимают оплату через Kaspi QR или Kaspi перевод сразу после того, как вы примите работу.',
+      icon: '💳',
+      category: 'payment'
+    },
+    {
+      question: 'Какие средства вы используете для эко-уборки?',
+      answer: 'Мы используем сертифицированные биоразлагаемые средства, такие как Chemspec и Green Lab. Они полностью безопасны для детей, аллергиков и домашних животных.',
+      icon: '🌿',
+      category: 'executors'
     }
   ];
 
-  const categories = [
-    { id: 'all', label: 'Все', icon: '📋' },
-    { id: 'prices', label: 'Цены', icon: '💰' },
-    { id: 'location', label: 'Районы', icon: '📍' },
-    { id: 'executors', label: 'Исполнители', icon: '👥' }
-  ];
-
   const filteredFAQ = useMemo(() => {
-    const baseFiltered = faqItems.filter(item => {
-      const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
-      const matchesSearch = searchQuery === '' || 
-        item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.answer.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
-    });
+    const baseFiltered = faqItems.filter(item => 
+      item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.answer.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-    if (localFAQ && searchQuery === '' && activeCategory === 'all') {
+    if (localFAQ && searchQuery === '') {
       const localItems: FAQItem[] = localFAQ.map(item => ({
         question: item.q,
         answer: item.a,
         icon: '📍',
-        category: 'location',
-        keywords: ['локальный']
+        category: 'location'
       }));
       return [...localItems, ...baseFiltered];
     }
-
     return baseFiltered;
-  }, [activeCategory, searchQuery, localFAQ]);
+  }, [searchQuery, localFAQ]);
 
   return (
-    <section id="faq" className="py-16 lg:py-24 bg-gray-50">
+    <section id="faq" className="py-24 bg-slate-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">База знаний и вопросы</h2>
-          <p className="text-gray-600">Всё, что нужно знать перед заказом уборки в 2026 году</p>
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">Помощник CleanAlmaty</h2>
+          <p className="text-lg text-slate-500">Отвечаем на популярные вопросы жителей города</p>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-8 justify-center">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                activeCategory === cat.id ? 'bg-emerald-500 text-white shadow-lg' : 'bg-white text-gray-600 border border-gray-200'
-              }`}
-            >
-              <span>{cat.icon}</span> {cat.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="space-y-4">
+        <div className="space-y-4" itemScope itemType="https://schema.org/FAQPage">
           {filteredFAQ.map((item, index) => (
-            <article key={index} className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <article 
+              key={index} 
+              className={`bg-white rounded-[32px] border transition-all duration-300 ${openIndex === index ? 'border-emerald-500 shadow-xl shadow-emerald-100/50' : 'border-slate-100 hover:border-slate-200'}`}
+              itemScope itemProp="mainEntity" itemType="https://schema.org/Question"
+            >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full px-6 py-5 text-left flex items-center gap-4"
+                className="w-full px-8 py-6 text-left flex items-center gap-4"
+                aria-expanded={openIndex === index}
               >
-                <span className="text-2xl">{item.icon}</span>
-                <span className="font-medium text-gray-900 flex-1">{item.question}</span>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-transform ${openIndex === index ? 'rotate-180 bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500'}`}>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                <span className="text-3xl">{item.icon}</span>
+                <span className="font-bold text-slate-900 flex-1 leading-tight" itemProp="name">{item.question}</span>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform duration-300 ${openIndex === index ? 'rotate-180 bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
                 </div>
               </button>
               {openIndex === index && (
-                <div className="px-6 pb-6 pl-16 text-gray-600 leading-relaxed whitespace-pre-line animate-fade-in">
-                  {item.answer}
+                <div className="px-8 pb-8 pl-20 animate-fade-in" itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                  <div className="text-slate-600 leading-relaxed text-lg" itemProp="text">
+                    {item.answer}
+                  </div>
                 </div>
               )}
             </article>
